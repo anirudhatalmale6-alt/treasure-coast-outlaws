@@ -1,0 +1,4 @@
+data/tco.sqlite
+uploads/*
+!uploads/.gitkeep
+!uploads/.htaccess

@@ -1,0 +1,11 @@
+# Serve uploads as plain files — never execute code from this folder.
+# Wrapped in IfModule guards so it won't 500 on FPM/CGI hosts.
+<IfModule mod_php7.c>
+  php_admin_flag engine off
+</IfModule>
+<IfModule mod_php.c>
+  php_admin_flag engine off
+</IfModule>
+<FilesMatch "\.(php|phtml|php3|php4|php5|php7|phps|pl|py|cgi)$">
+  Require all denied
+</FilesMatch>
