@@ -36,7 +36,7 @@ include __DIR__ . '/includes/header.php';
         <div class="divider"></div>
       </div>
       <a class="ig-follow" href="<?= e(IG_URL) ?>" target="_blank" rel="noopener">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
           <rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/>
         </svg>
         <span>Follow @<?= e(IG_HANDLE) ?></span>
@@ -73,7 +73,7 @@ include __DIR__ . '/includes/header.php';
               <div class="thumb" style="background-image:url('<?= UPLOAD_URL . '/' . e($p['image_file']) ?>')"></div>
             <?php else: ?>
               <div class="thumb placeholder">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 5h16v14H4z"/><path d="M4 9h16M8 5v14"/></svg>
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 5h16v14H4z"/><path d="M4 9h16M8 5v14"/></svg>
               </div>
             <?php endif; ?>
             <div class="body">
