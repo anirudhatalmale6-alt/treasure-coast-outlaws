@@ -1,9 +1,11 @@
 <?php
 /**
- * Database layer — a single SQLite file (data/tco.sqlite).
+ * Database layer — MySQL (via PDO).
  *
- * SQLite needs no server or setup: the file is created automatically the first
- * time the site runs. All posts (news, photos, videos) live in one table.
+ * Connection details come from includes/config.php. Create the database on your
+ * DB host and import the included `database.sql` once; after that this just
+ * connects. (It also creates the table automatically if it's missing, so the
+ * site is self-healing.)
  */
 
 require_once __DIR__ . '/config.php';
@@ -12,25 +14,32 @@ function getDB(): PDO {
     static $pdo = null;
     if ($pdo !== null) return $pdo;
 
-    if (!is_dir(DATA_DIR)) {
-        @mkdir(DATA_DIR, 0775, true);
+    $dsn = sprintf('mysql:host=%s;port=%s;dbname=%s;charset=utf8mb4',
+                   DB_HOST, DB_PORT, DB_NAME);
+    try {
+        $pdo = new PDO($dsn, DB_USER, DB_PASS, [
+            PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+            PDO::ATTR_EMULATE_PREPARES   => true,
+        ]);
+    } catch (PDOException $ex) {
+        http_response_code(500);
+        exit('Database connection failed. Please check the DB settings in includes/config.php. (' . htmlspecialchars($ex->getMessage()) . ')');
     }
 
-    $pdo = new PDO('sqlite:' . DATA_DIR . '/tco.sqlite');
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
-
-    // One table holds every kind of post. `type` is news | photo | video.
+    // Self-heal: make sure the table exists (matches database.sql).
     $pdo->exec("CREATE TABLE IF NOT EXISTS posts (
-        id           INTEGER PRIMARY KEY AUTOINCREMENT,
-        type         TEXT NOT NULL DEFAULT 'news',   -- news | photo | video
-        title        TEXT NOT NULL DEFAULT '',
-        body         TEXT NOT NULL DEFAULT '',        -- the text/caption
-        image_file   TEXT NULL,                       -- uploaded image filename
-        video_file   TEXT NULL,                       -- uploaded video filename (mp4)
-        video_url    TEXT NULL,                       -- OR a YouTube/Vimeo link
-        created_at   TEXT NOT NULL DEFAULT (datetime('now'))
-    )");
+        id          INT AUTO_INCREMENT PRIMARY KEY,
+        type        VARCHAR(10)  NOT NULL DEFAULT 'news',   -- news | photo | video
+        title       VARCHAR(255) NOT NULL DEFAULT '',
+        body        TEXT         NULL,                       -- the text / caption / story
+        image_file  VARCHAR(255) NULL,                       -- uploaded image filename
+        video_file  VARCHAR(255) NULL,                       -- uploaded video filename (mp4)
+        video_url   VARCHAR(500) NULL,                       -- OR a YouTube / Vimeo link
+        created_at  DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        INDEX idx_type (type),
+        INDEX idx_created (created_at)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
 
     return $pdo;
 }

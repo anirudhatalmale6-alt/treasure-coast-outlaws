@@ -7,9 +7,9 @@ A simple, self-contained website for the Treasure Coast Outlaws baseball team:
 - **Admin page** — a password-protected control room where you post News,
   Photos and Videos. Anything you post shows up on the home page instantly.
 
-No external database or paid services required. Everything runs on plain PHP
-with a tiny built-in SQLite file, so it works on almost any web host
-(DreamHost, cPanel, etc.).
+Runs on plain PHP with a MySQL database. The site files and the database can
+live on different hosts — the app just connects to your MySQL host over the
+details you put in `includes/config.php`.
 
 ---
 
@@ -18,40 +18,50 @@ with a tiny built-in SQLite file, so it works on almost any web host
 ```
 index.php            The public home page
 admin.php            Login + post manager (News / Photos / Videos)
+database.sql         ← import this ONCE on your MySQL host to create the table
 includes/
-  config.php         ← set your admin PASSWORD here
-  db.php             database (auto-creates data/tco.sqlite on first run)
+  config.php         ← set DB connection + admin PASSWORD here
+  db.php             connects to MySQL (also self-creates the table if missing)
   functions.php      helpers (uploads, video embedding, etc.)
   header.php/footer.php   shared layout
 assets/
   css/style.css      the theme
   img/logo.png       the team emblem (transparent) + logo.jpeg original
 uploads/             where posted photos & videos are stored
-data/                where the SQLite database lives (auto-created)
 ```
 
 ---
 
-## Setup (about 2 minutes)
+## Setup (about 3 minutes)
 
-1. **Upload** the whole folder to your web host (into `public_html`, or a
+1. **Create the database.** On your MySQL host, create a database (any name),
+   then import the included **`database.sql`** — in phpMyAdmin use the *Import*
+   tab, or run it from the command line. That creates the single `posts` table
+   the site needs. Note down the host, database name, username and password.
+
+2. **Upload** the site files to your web host (into `public_html`, or a
    subfolder like `public_html/outlaws`).
 
-2. **Set your admin password.** Open `includes/config.php` and change:
+3. **Fill in `includes/config.php`:**
    ```php
-   define('ADMIN_PASSWORD', 'Outlaws2026!');   // <- change this
+   define('DB_HOST', 'mysql.yourprovider.com'); // your DB host
+   define('DB_PORT', '3306');
+   define('DB_NAME', 'treasure_coast_outlaws'); // your database name
+   define('DB_USER', 'your_db_user');
+   define('DB_PASS', 'your_db_password');
+
+   define('ADMIN_PASSWORD', 'Outlaws2026!');    // <- change this to your own
    ```
 
-3. **Make two folders writable** so posts and uploads can be saved. In your
-   host's file manager set permissions to `755` (or `775`) on:
-   - `data/`
-   - `uploads/`
+4. **Make the `uploads/` folder writable** (permissions `755` or `775`) so
+   posted photos and videos can be saved.
 
-4. Visit your site — that's it. The home page is live, and `/admin.php` is your
-   control room.
+5. Visit your site — the home page is live, and `/admin.php` is your control
+   room.
 
-**Requirements:** PHP 7.4 or newer with PDO SQLite (standard on DreamHost and
-virtually every shared host).
+**Requirements:** PHP 7.4+ with PDO MySQL (standard on virtually every host),
+and a MySQL/MariaDB database. The site files and the database can be on
+different hosting providers.
 
 ---
 
@@ -71,7 +81,7 @@ remove it (its uploaded file is deleted too).
 
 ## Notes
 
-- The database is a single file: `data/tco.sqlite`. To back up your site's
-  content, just save that file plus the `uploads/` folder.
-- `data/` and `uploads/` include `.htaccess` files that block the database from
-  being downloaded and stop uploaded files from being executed as code.
+- To back up your content, back up your MySQL database plus the `uploads/`
+  folder (that's where the actual photos and video files are stored).
+- The `uploads/` folder includes an `.htaccess` that stops uploaded files from
+  being executed as code (a safety measure).

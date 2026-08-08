@@ -1,0 +1,12 @@
+# Treasure Coast Outlaws — folder settings.
+# This site is self-contained and links to real .php files directly, so we turn
+# OFF any URL-rewriting inherited from a parent folder (e.g. bot24.io's root
+# .htaccess clean-URL rules) to avoid unexpected redirects on this subfolder.
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    # (no rules on purpose — enabling the engine here stops parent rules from
+    #  being applied to this directory)
+</IfModule>
+
+# Serve the home page for the folder root.
+DirectoryIndex index.php

@@ -15,9 +15,19 @@ define('ADMIN_PASSWORD', 'Outlaws2026!');
 define('SITE_NAME', 'Treasure Coast Outlaws');
 define('SITE_TAGLINE', 'Outlaws Baseball');
 
+// ── Database ────────────────────────────────────────────────────────────────
+// The site uses MySQL so the database can live on a separate hosting provider.
+// 1) Create the database on your DB host and import the included `database.sql`
+//    (it creates the one table the site needs).
+// 2) Fill in the connection details below with what your DB host gives you.
+define('DB_HOST', 'localhost');                 // e.g. mysql.yourprovider.com
+define('DB_PORT', '3306');                      // usually 3306
+define('DB_NAME', 'treasure_coast_outlaws');    // your database name
+define('DB_USER', 'CHANGE_ME');                 // your database username
+define('DB_PASS', 'CHANGE_ME');                 // your database password
+
 // ── Paths (usually no need to change) ───────────────────────────────────────
 define('BASE_DIR', dirname(__DIR__));               // project root
-define('DATA_DIR', BASE_DIR . '/data');             // sqlite db lives here
 define('UPLOAD_DIR', BASE_DIR . '/uploads');        // uploaded images/videos
 define('UPLOAD_URL', 'uploads');                    // web path to uploads
 

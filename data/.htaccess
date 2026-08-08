@@ -1,3 +1,0 @@
-# Block all web access to the database
-Require all denied
-Deny from all

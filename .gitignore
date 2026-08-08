@@ -1,4 +1,4 @@
-data/tco.sqlite
+# Don't commit uploaded media (they live only on the live server)
 uploads/*
 !uploads/.gitkeep
 !uploads/.htaccess
