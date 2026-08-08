@@ -375,10 +375,16 @@ footer.site small{display:block;margin-top:10px;font-size:.78rem}
 .gc-nums{font-family:'Oswald',sans-serif;font-size:1.15rem;color:#fff}
 .gc-upcoming{font-size:.8rem;color:var(--steel)}
 .gc-mvp{
+  display:flex;align-items:center;gap:8px;
   font-size:.78rem;color:var(--silver);background:rgba(255,255,255,.05);
   border:1px solid var(--line);border-radius:7px;padding:5px 9px;
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
 }
+.gc-mvp-pic{
+  width:22px;height:22px;border-radius:50%;flex-shrink:0;
+  background:#0e0e11 center/cover no-repeat;border:1px solid var(--line);
+}
+.gc-mvp-star{color:#e8c66a;flex-shrink:0}
+.gc-mvp-name{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .gc-link{
   margin-top:auto;padding-top:6px;font-family:'Oswald',sans-serif;text-transform:uppercase;
   letter-spacing:1px;font-size:.68rem;color:var(--muted);transition:color .15s;
@@ -433,6 +439,15 @@ footer.site small{display:block;margin-top:10px;font-size:.78rem}
 .mvp-line{margin-top:8px;font-family:'Oswald',sans-serif;letter-spacing:1px;color:#fff;font-size:.95rem}
 .stats-table tr.is-mvp{background:rgba(255,255,255,.035)}
 .mvp-star{color:#e8c66a}
+
+/* Admin: current headshot preview when editing a player */
+.cur-photo{display:flex;align-items:center;gap:14px;margin:0 0 16px}
+.cur-photo-img{
+  width:64px;height:64px;border-radius:50%;background:#0e0e11 center/cover no-repeat;
+  border:2px solid var(--line);flex-shrink:0;
+}
+.cur-photo-rm{display:flex;align-items:center;gap:8px;color:var(--steel);font-size:.88rem;cursor:pointer}
+.cur-photo-rm input{width:auto;margin:0}
 
 /* Admin: Outlaw of the Game picker */
 .mvp-pick{border:1px solid var(--line);border-radius:12px;padding:16px 18px 4px;margin:6px 0 18px;background:rgba(255,255,255,.02)}

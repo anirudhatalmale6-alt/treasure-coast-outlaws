@@ -122,6 +122,62 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'creat
     }
 }
 
+/* ── Edit an existing player ─────────────────────────────────────────────── */
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'update-player' && isAdmin()) {
+    try {
+        $id       = (int)($_POST['id'] ?? 0);
+        $name     = trim($_POST['name'] ?? '');
+        $number   = trim($_POST['number'] ?? '');
+        $position = trim($_POST['position'] ?? '');
+        $bats     = strtoupper(trim($_POST['bats'] ?? ''));
+        $throws   = strtoupper(trim($_POST['throws'] ?? ''));
+
+        if (!$id)         throw new RuntimeException('Player not found.');
+        if ($name === '') throw new RuntimeException('Please enter the player\'s name.');
+        if ($number !== '' && !preg_match('/^\d{1,3}$/', $number)) {
+            throw new RuntimeException('Jersey number should be digits only (e.g. 7 or 00).');
+        }
+        if (!in_array($bats, ['', 'R', 'L', 'S'], true)) $bats = '';
+        if (!in_array($throws, ['', 'R', 'L'], true))    $throws = '';
+
+        $existing = getPlayer($id);
+        if (!$existing) throw new RuntimeException('Player not found.');
+
+        // Photo: keep the current one unless a new file is uploaded, or the
+        // "remove photo" box is ticked.
+        $photoFile = $existing['photo_file'];
+        $newPhoto  = handleUpload('photo', 'image');
+        if ($newPhoto) {
+            if (!empty($existing['photo_file']) && is_file(UPLOAD_DIR . '/' . $existing['photo_file'])) {
+                @unlink(UPLOAD_DIR . '/' . $existing['photo_file']);
+            }
+            $photoFile = $newPhoto;
+        } elseif (!empty($_POST['remove_photo'])) {
+            if (!empty($existing['photo_file']) && is_file(UPLOAD_DIR . '/' . $existing['photo_file'])) {
+                @unlink(UPLOAD_DIR . '/' . $existing['photo_file']);
+            }
+            $photoFile = null;
+        }
+
+        getDB()->prepare("UPDATE players SET name=:n, number=:num, position=:pos,
+                          bats=:b, throws=:t, photo_file=:ph WHERE id=:id")
+               ->execute([
+                   ':n'   => $name,
+                   ':num' => $number !== '' ? $number : null,
+                   ':pos' => $position !== '' ? $position : null,
+                   ':b'   => $bats !== '' ? $bats : null,
+                   ':t'   => $throws !== '' ? $throws : null,
+                   ':ph'  => $photoFile,
+                   ':id'  => $id,
+               ]);
+        $_SESSION['admin_flash'] = ['type' => 'ok', 'msg' => $name . ' updated.'];
+        header('Location: admin#roster');
+        exit;
+    } catch (Throwable $ex) {
+        $flash = ['type' => 'err', 'msg' => $ex->getMessage()];
+    }
+}
+
 /* ── Remove a player ─────────────────────────────────────────────────────── */
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'delete-player' && isAdmin()) {
     $id = (int)($_POST['id'] ?? 0);
@@ -135,6 +191,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'delet
         $flash = ['type' => 'ok', 'msg' => 'Player removed.'];
     }
 }
+
+// Flash carried across the edit-player redirect.
+if (!$flash && !empty($_SESSION['admin_flash'])) {
+    $flash = $_SESSION['admin_flash'];
+    unset($_SESSION['admin_flash']);
+}
+
+// Editing a player? (admin?edit_player=ID)
+$editPlayer = isAdmin() && !empty($_GET['edit_player']) ? getPlayer((int)$_GET['edit_player']) : null;
 
 $pageTitle = 'Admin';
 
@@ -265,27 +330,32 @@ include __DIR__ . '/includes/header.php';
     </div>
 
     <!-- ── Roster manager ─────────────────────────────────────────────── -->
-    <div class="panel" style="margin-top:26px">
-      <h3>Roster</h3>
-      <p style="color:var(--steel);margin:-8px 0 18px;font-size:.92rem">Add players here — they show up on the Roster page. A headshot is optional.</p>
+    <div class="panel" style="margin-top:26px" id="roster">
+      <h3><?= $editPlayer ? 'Edit Player' : 'Roster' ?></h3>
+      <p style="color:var(--steel);margin:-8px 0 18px;font-size:.92rem">
+        <?= $editPlayer
+            ? 'Change any detail below. Upload a new headshot to replace the current one.'
+            : 'Add players here — they show up on the Roster page. A headshot is optional.' ?>
+      </p>
 
       <form method="post" enctype="multipart/form-data" class="roster-form">
-        <input type="hidden" name="action" value="create-player">
+        <input type="hidden" name="action" value="<?= $editPlayer ? 'update-player' : 'create-player' ?>">
+        <?php if ($editPlayer): ?><input type="hidden" name="id" value="<?= (int)$editPlayer['id'] ?>"><?php endif; ?>
         <div class="rf-grid">
           <div class="field">
             <label for="pl-name">Name</label>
-            <input type="text" id="pl-name" name="name" required placeholder="Player name">
+            <input type="text" id="pl-name" name="name" required placeholder="Player name" value="<?= e($editPlayer['name'] ?? '') ?>">
           </div>
           <div class="field">
             <label for="pl-number">Number</label>
-            <input type="text" id="pl-number" name="number" inputmode="numeric" placeholder="e.g. 7">
+            <input type="text" id="pl-number" name="number" inputmode="numeric" placeholder="e.g. 7" value="<?= e($editPlayer['number'] ?? '') ?>">
           </div>
           <div class="field">
             <label for="pl-position">Position</label>
             <select id="pl-position" name="position">
               <option value="">— select —</option>
               <?php foreach (positionOptions() as $pos): ?>
-                <option value="<?= e($pos) ?>"><?= e($pos) ?></option>
+                <option value="<?= e($pos) ?>" <?= ($editPlayer['position'] ?? '') === $pos ? 'selected' : '' ?>><?= e($pos) ?></option>
               <?php endforeach; ?>
             </select>
           </div>
@@ -294,7 +364,7 @@ include __DIR__ . '/includes/header.php';
             <select id="pl-bats" name="bats">
               <option value="">—</option>
               <?php foreach (battingOptions() as $v => $lbl): ?>
-                <option value="<?= e($v) ?>"><?= e($lbl) ?></option>
+                <option value="<?= e($v) ?>" <?= ($editPlayer['bats'] ?? '') === $v ? 'selected' : '' ?>><?= e($lbl) ?></option>
               <?php endforeach; ?>
             </select>
           </div>
@@ -303,16 +373,32 @@ include __DIR__ . '/includes/header.php';
             <select id="pl-throws" name="throws">
               <option value="">—</option>
               <?php foreach (throwingOptions() as $v => $lbl): ?>
-                <option value="<?= e($v) ?>"><?= e($lbl) ?></option>
+                <option value="<?= e($v) ?>" <?= ($editPlayer['throws'] ?? '') === $v ? 'selected' : '' ?>><?= e($lbl) ?></option>
               <?php endforeach; ?>
             </select>
           </div>
           <div class="field">
-            <label for="pl-photo">Headshot <span style="color:var(--muted);text-transform:none;letter-spacing:0">(optional)</span></label>
+            <label for="pl-photo">
+              <?= $editPlayer && !empty($editPlayer['photo_file']) ? 'Replace headshot' : 'Headshot' ?>
+              <span style="color:var(--muted);text-transform:none;letter-spacing:0">(optional)</span>
+            </label>
             <input type="file" id="pl-photo" name="photo" accept="image/*">
           </div>
         </div>
-        <button class="btn btn-primary" type="submit">Add Player</button>
+
+        <?php if ($editPlayer && !empty($editPlayer['photo_file'])): ?>
+          <div class="cur-photo">
+            <div class="cur-photo-img" style="background-image:url('<?= UPLOAD_URL . '/' . e($editPlayer['photo_file']) ?>')"></div>
+            <label class="cur-photo-rm">
+              <input type="checkbox" name="remove_photo" value="1"> Remove current photo
+            </label>
+          </div>
+        <?php endif; ?>
+
+        <button class="btn btn-primary" type="submit"><?= $editPlayer ? 'Save Changes' : 'Add Player' ?></button>
+        <?php if ($editPlayer): ?>
+          <a class="btn btn-ghost" href="admin#roster" style="margin-left:8px">Cancel</a>
+        <?php endif; ?>
       </form>
 
       <h4 style="margin:26px 0 14px;font-family:'Oswald',sans-serif;text-transform:uppercase;letter-spacing:1px;color:#fff">
@@ -339,6 +425,7 @@ include __DIR__ . '/includes/header.php';
                   ?>
                 </small>
               </div>
+              <a class="btn btn-ghost btn-sm" href="admin?edit_player=<?= (int)$pl['id'] ?>#roster">Edit</a>
               <form method="post" onsubmit="return confirm('Remove this player?')">
                 <input type="hidden" name="action" value="delete-player">
                 <input type="hidden" name="id" value="<?= (int)$pl['id'] ?>">

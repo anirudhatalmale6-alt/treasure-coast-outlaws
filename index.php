@@ -63,7 +63,14 @@ include __DIR__ . '/includes/header.php';
               </div>
               <?php if (!empty($g['mvp_player_id'])): $m = getPlayer((int)$g['mvp_player_id']); ?>
                 <?php if ($m): ?>
-                  <div class="gc-mvp">&#9733; <?= e($m['name']) ?></div>
+                  <div class="gc-mvp">
+                    <?php if (!empty($m['photo_file'])): ?>
+                      <span class="gc-mvp-pic" style="background-image:url('<?= UPLOAD_URL . '/' . e($m['photo_file']) ?>')"></span>
+                    <?php else: ?>
+                      <span class="gc-mvp-star">&#9733;</span>
+                    <?php endif; ?>
+                    <span class="gc-mvp-name"><?= e($m['name']) ?></span>
+                  </div>
                 <?php endif; ?>
               <?php endif; ?>
             <?php else: ?>
