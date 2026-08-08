@@ -105,6 +105,16 @@ function getPosts(?string $type = null, int $limit = 100): array {
     return $stmt->fetchAll();
 }
 
+/** Fetch highlights — photos AND videos together, newest first. */
+function getHighlights(int $limit = 60): array {
+    $stmt = getDB()->prepare(
+        "SELECT * FROM posts WHERE type IN ('photo','video')
+         ORDER BY created_at DESC, id DESC LIMIT :lim");
+    $stmt->bindValue(':lim', $limit, PDO::PARAM_INT);
+    $stmt->execute();
+    return $stmt->fetchAll();
+}
+
 /** Fetch the roster, ordered by jersey number (numeric) then name. */
 function getPlayers(int $limit = 500): array {
     $stmt = getDB()->prepare(

@@ -1,9 +1,8 @@
 <?php
 require_once __DIR__ . '/includes/functions.php';
 
-$news   = getPosts('news', 12);
-$photos = getPosts('photo', 24);
-$videos = getPosts('video', 12);
+$news       = getPosts('news', 12);
+$highlights = getHighlights(60);   // photos + videos combined, newest first
 
 $pageTitle = null; // homepage uses the plain site name
 include __DIR__ . '/includes/header.php';
@@ -18,7 +17,7 @@ include __DIR__ . '/includes/header.php';
     <p class="lead">Follow the team — the latest news, game-day photos and highlight videos, all in one place.</p>
     <div class="cta">
       <a class="btn btn-primary" href="#news">Latest News</a>
-      <a class="btn btn-ghost" href="#videos">Watch Highlights</a>
+      <a class="btn btn-ghost" href="#highlights">Highlights</a>
     </div>
   </div>
 </header>
@@ -59,66 +58,49 @@ include __DIR__ . '/includes/header.php';
   </div>
 </section>
 
-<!-- ── Photos ───────────────────────────────────────────────────────────── -->
-<section class="block" id="photos">
+<!-- ── Highlights (photos + videos combined) ────────────────────────────── -->
+<section class="block" id="highlights">
   <div class="wrap">
     <div class="sec-head">
       <div>
-        <span class="section-label">On the Field</span>
-        <h2>Photo Gallery</h2>
+        <span class="section-label">Photos &amp; Videos</span>
+        <h2>Highlights</h2>
         <div class="divider"></div>
       </div>
     </div>
 
-    <?php if (!$photos): ?>
-      <div class="empty">No photos posted yet. Check back soon.</div>
+    <?php if (!$highlights): ?>
+      <div class="empty">No highlights posted yet. Check back soon.</div>
     <?php else: ?>
-      <div class="gallery">
-        <?php foreach ($photos as $p): if (empty($p['image_file'])) continue; ?>
-          <a href="#" data-full="<?= UPLOAD_URL . '/' . e($p['image_file']) ?>" onclick="return openLightbox(this)">
-            <img src="<?= UPLOAD_URL . '/' . e($p['image_file']) ?>" alt="<?= e($p['title'] ?: 'Outlaws photo') ?>" loading="lazy">
-            <?php if (($p['title'] ?: $p['body']) !== ''): ?>
-              <span class="cap"><?= e($p['title'] ?: $p['body']) ?></span>
-            <?php endif; ?>
-          </a>
-        <?php endforeach; ?>
-      </div>
-    <?php endif; ?>
-  </div>
-</section>
-
-<!-- ── Videos ───────────────────────────────────────────────────────────── -->
-<section class="block" id="videos">
-  <div class="wrap">
-    <div class="sec-head">
-      <div>
-        <span class="section-label">Highlights</span>
-        <h2>Videos</h2>
-        <div class="divider"></div>
-      </div>
-    </div>
-
-    <?php if (!$videos): ?>
-      <div class="empty">No videos posted yet. Check back soon.</div>
-    <?php else: ?>
-      <div class="grid videos">
-        <?php foreach ($videos as $p):
-            $embed = !empty($p['video_url']) ? videoEmbedUrl($p['video_url']) : null;
-            $isFile = !empty($p['video_file']);
-        ?>
-          <div class="video-card">
-            <div class="video-frame">
-              <?php if ($isFile): ?>
-                <video controls preload="metadata" src="<?= UPLOAD_URL . '/' . e($p['video_file']) ?>"></video>
-              <?php elseif ($embed): ?>
-                <iframe src="<?= e($embed) ?>" title="<?= e($p['title']) ?>" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+      <div class="highlights-grid">
+        <?php foreach ($highlights as $p): ?>
+          <?php if ($p['type'] === 'photo' && !empty($p['image_file'])): ?>
+            <a class="hl-item" href="#" data-full="<?= UPLOAD_URL . '/' . e($p['image_file']) ?>" onclick="return openLightbox(this)">
+              <div class="hl-media" style="background-image:url('<?= UPLOAD_URL . '/' . e($p['image_file']) ?>')">
+                <span class="hl-badge">Photo</span>
+              </div>
+              <?php if (($p['title'] ?: $p['body']) !== ''): ?>
+                <div class="hl-cap"><?= e($p['title'] ?: $p['body']) ?></div>
+              <?php endif; ?>
+            </a>
+          <?php elseif ($p['type'] === 'video'):
+              $embed  = !empty($p['video_url']) ? videoEmbedUrl($p['video_url']) : null;
+              $isFile = !empty($p['video_file']);
+          ?>
+            <div class="hl-item">
+              <div class="hl-media video-frame">
+                <?php if ($isFile): ?>
+                  <video controls preload="metadata" src="<?= UPLOAD_URL . '/' . e($p['video_file']) ?>"></video>
+                <?php elseif ($embed): ?>
+                  <iframe src="<?= e($embed) ?>" title="<?= e($p['title']) ?>" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                <?php endif; ?>
+                <span class="hl-badge">Video</span>
+              </div>
+              <?php if (($p['title'] ?: $p['body']) !== ''): ?>
+                <div class="hl-cap"><?= e($p['title'] ?: $p['body']) ?></div>
               <?php endif; ?>
             </div>
-            <div class="body">
-              <h3><?= e($p['title'] ?: 'Highlight') ?></h3>
-              <?php if ($p['body'] !== ''): ?><p><?= e($p['body']) ?></p><?php endif; ?>
-            </div>
-          </div>
+          <?php endif; ?>
         <?php endforeach; ?>
       </div>
     <?php endif; ?>

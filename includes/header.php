@@ -24,8 +24,7 @@
     <div class="nav-links" id="navLinks">
       <a href="./#top">Home</a>
       <a href="./#news">News</a>
-      <a href="./#photos">Photos</a>
-      <a href="./#videos">Videos</a>
+      <a href="./#highlights">Highlights</a>
       <a href="roster">Roster</a>
       <a href="contact">Contact</a>
     </div>

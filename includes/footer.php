@@ -3,8 +3,7 @@
     <img src="assets/img/logo.png" alt="<?= e(SITE_NAME) ?>">
     <div class="links">
       <a href="./#news">News</a>
-      <a href="./#photos">Photos</a>
-      <a href="./#videos">Videos</a>
+      <a href="./#highlights">Highlights</a>
       <a href="roster">Roster</a>
       <a href="contact">Contact</a>
     </div>
