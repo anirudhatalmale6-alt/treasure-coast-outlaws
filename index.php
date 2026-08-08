@@ -44,24 +44,28 @@ include __DIR__ . '/includes/header.php';
     </div>
 
     <?php if ($igPosts): ?>
-      <div class="grid news">
-        <?php foreach ($igPosts as $post):
-            $img = igPostImage($post);
-            if ($img === '') continue;
-            $isVideo = ($post['media_type'] ?? '') === 'VIDEO';
-        ?>
-          <a class="card ig-post" href="<?= e($post['permalink'] ?? IG_URL) ?>" target="_blank" rel="noopener">
-            <div class="thumb" style="background-image:url('<?= e($img) ?>')">
-              <?php if ($isVideo): ?><span class="ig-play" aria-hidden="true">▶</span><?php endif; ?>
-            </div>
-            <div class="body">
-              <span class="date"><?= e(niceDate($post['timestamp'] ?? '')) ?></span>
-              <?php $cap = igExcerpt($post['caption'] ?? ''); ?>
-              <?php if ($cap !== ''): ?><p><?= e($cap) ?></p><?php endif; ?>
-              <span class="ig-viewlink">View on Instagram →</span>
-            </div>
-          </a>
-        <?php endforeach; ?>
+      <div class="ig-scroll-wrap">
+        <button type="button" class="ig-arrow prev" aria-label="Scroll left" onclick="igScroll(-1)">&#8249;</button>
+        <div class="ig-scroller" id="igScroller">
+          <?php foreach ($igPosts as $post):
+              $img = igPostImage($post);
+              if ($img === '') continue;
+              $isVideo = ($post['media_type'] ?? '') === 'VIDEO';
+          ?>
+            <a class="card ig-post" href="<?= e($post['permalink'] ?? IG_URL) ?>" target="_blank" rel="noopener">
+              <div class="thumb" style="background-image:url('<?= e($img) ?>')">
+                <?php if ($isVideo): ?><span class="ig-play" aria-hidden="true">▶</span><?php endif; ?>
+              </div>
+              <div class="body">
+                <span class="date"><?= e(niceDate($post['timestamp'] ?? '')) ?></span>
+                <?php $cap = igExcerpt($post['caption'] ?? ''); ?>
+                <?php if ($cap !== ''): ?><p><?= e($cap) ?></p><?php endif; ?>
+                <span class="ig-viewlink">View on Instagram →</span>
+              </div>
+            </a>
+          <?php endforeach; ?>
+        </div>
+        <button type="button" class="ig-arrow next" aria-label="Scroll right" onclick="igScroll(1)">&#8250;</button>
       </div>
     <?php endif; ?>
 
@@ -151,6 +155,23 @@ function openLightbox(a){
   document.getElementById('lightbox').classList.add('open');
   return false;
 }
+function igScroll(dir){
+  var s = document.getElementById('igScroller');
+  if (!s) return;
+  var card = s.querySelector('.ig-post');
+  var step = card ? (card.getBoundingClientRect().width + 20) : (s.clientWidth * 0.8);
+  s.scrollBy({ left: dir * step, behavior: 'smooth' });
+}
+function igSyncArrows(){
+  var s = document.getElementById('igScroller');
+  if (!s) return;
+  var wrap = s.closest('.ig-scroll-wrap');
+  if (!wrap) return;
+  // Only offer arrows when there's actually more to scroll to.
+  wrap.classList.toggle('has-overflow', (s.scrollWidth - s.clientWidth) > 8);
+}
+window.addEventListener('load', igSyncArrows);
+window.addEventListener('resize', igSyncArrows);
 </script>
 
 <?php include __DIR__ . '/includes/footer.php'; ?>

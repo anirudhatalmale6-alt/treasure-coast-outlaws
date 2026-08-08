@@ -141,6 +141,32 @@ section.block{padding:64px 0;border-top:1px solid rgba(255,255,255,.04)}
 }
 .ig-post:hover .ig-viewlink{color:#fff}
 
+/* Horizontal, swipeable Instagram feed */
+.ig-scroll-wrap{position:relative}
+.ig-scroller{
+  display:flex;gap:20px;overflow-x:auto;overflow-y:hidden;
+  scroll-snap-type:x mandatory;scroll-behavior:smooth;
+  -webkit-overflow-scrolling:touch;
+  padding:6px 2px 14px;              /* room for hover-lift + scrollbar */
+}
+.ig-scroller .ig-post{flex:0 0 300px;scroll-snap-align:start}
+.ig-scroller::-webkit-scrollbar{height:8px}
+.ig-scroller::-webkit-scrollbar-track{background:transparent}
+.ig-scroller::-webkit-scrollbar-thumb{background:var(--line);border-radius:8px}
+.ig-scroller::-webkit-scrollbar-thumb:hover{background:var(--steel)}
+.ig-scroller{scrollbar-width:thin;scrollbar-color:var(--line) transparent}
+.ig-arrow{
+  position:absolute;top:120px;z-index:5;width:44px;height:44px;border-radius:50%;
+  display:none;align-items:center;justify-content:center;cursor:pointer;
+  background:rgba(11,11,13,.82);border:1px solid var(--line);color:#fff;
+  font-size:1.6rem;line-height:1;backdrop-filter:blur(6px);
+  transition:background .15s,border-color .15s,transform .12s;
+}
+.ig-scroll-wrap.has-overflow .ig-arrow{display:flex}  /* only when there's more to see */
+.ig-arrow:hover{background:#0b0b0d;border-color:var(--steel);transform:scale(1.06)}
+.ig-arrow.prev{left:-10px}
+.ig-arrow.next{right:-10px}
+
 /* ── News cards ──────────────────────────────────────────────────────────── */
 .grid{display:grid;gap:22px}
 .grid.news{grid-template-columns:repeat(3,1fr)}
@@ -359,6 +385,8 @@ footer.site small{display:block;margin-top:10px;font-size:.78rem}
   .rf-grid{grid-template-columns:1fr 1fr}
   .cf-row{grid-template-columns:1fr}
   .highlights-grid{grid-template-columns:1fr}
+  .ig-scroll-wrap.has-overflow .ig-arrow{display:none}  /* swipe on touch instead */
+  .ig-scroller .ig-post{flex-basis:80vw}                /* peek the next card */
   .nav-links{
     position:absolute;top:74px;left:0;right:0;flex-direction:column;gap:0;
     background:#0c0c0f;border-bottom:1px solid var(--line);padding:8px 0;display:none;
