@@ -1,4 +1,8 @@
-# Don't commit uploaded media (they live only on the live server)
+# Uploaded media live only on the live server
 uploads/*
 !uploads/.gitkeep
 !uploads/.htaccess
+# Instagram token + cache are server-side secrets — never commit
+includes/cache/*
+!includes/cache/.htaccess
+!includes/cache/.gitkeep

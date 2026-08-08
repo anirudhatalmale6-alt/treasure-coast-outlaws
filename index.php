@@ -4,12 +4,9 @@ require_once __DIR__ . '/includes/functions.php';
 $news       = getPosts('news', 12);
 $highlights = getHighlights(60);   // photos + videos combined, newest first
 
-// Instagram widget embed (paste the code into includes/instagram-widget.html).
-$igEmbed = '';
-$igFile  = __DIR__ . '/includes/instagram-widget.html';
-if (is_file($igFile)) $igEmbed = trim(file_get_contents($igFile));
-// "Ready" = the file has real embed code, not just the placeholder comment.
-$igReady = ($igEmbed !== '' && strpos($igEmbed, 'INSTAGRAM WIDGET: paste') === false);
+// Instagram feed (official API, cached). Empty array until a token is set.
+require_once __DIR__ . '/includes/instagram.php';
+$igPosts = igGetPosts();
 
 $pageTitle = null; // homepage uses the plain site name
 include __DIR__ . '/includes/header.php';
@@ -46,12 +43,30 @@ include __DIR__ . '/includes/header.php';
       </a>
     </div>
 
-    <?php if ($igReady): ?>
-      <div class="ig-embed"><?= $igEmbed ?></div>
+    <?php if ($igPosts): ?>
+      <div class="grid news">
+        <?php foreach ($igPosts as $post):
+            $img = igPostImage($post);
+            if ($img === '') continue;
+            $isVideo = ($post['media_type'] ?? '') === 'VIDEO';
+        ?>
+          <a class="card ig-post" href="<?= e($post['permalink'] ?? IG_URL) ?>" target="_blank" rel="noopener">
+            <div class="thumb" style="background-image:url('<?= e($img) ?>')">
+              <?php if ($isVideo): ?><span class="ig-play" aria-hidden="true">▶</span><?php endif; ?>
+            </div>
+            <div class="body">
+              <span class="date"><?= e(niceDate($post['timestamp'] ?? '')) ?></span>
+              <?php $cap = igExcerpt($post['caption'] ?? ''); ?>
+              <?php if ($cap !== ''): ?><p><?= e($cap) ?></p><?php endif; ?>
+              <span class="ig-viewlink">View on Instagram →</span>
+            </div>
+          </a>
+        <?php endforeach; ?>
+      </div>
     <?php endif; ?>
 
     <?php if ($news): ?>
-      <div class="grid news"<?= $igReady ? ' style="margin-top:26px"' : '' ?>>
+      <div class="grid news"<?= $igPosts ? ' style="margin-top:26px"' : '' ?>>
         <?php foreach ($news as $p): ?>
           <article class="card">
             <?php if (!empty($p['image_file'])): ?>
@@ -69,7 +84,7 @@ include __DIR__ . '/includes/header.php';
           </article>
         <?php endforeach; ?>
       </div>
-    <?php elseif (!$igReady): ?>
+    <?php elseif (!$igPosts): ?>
       <div class="empty">Our latest updates will appear here — follow us on Instagram in the meantime.</div>
     <?php endif; ?>
   </div>

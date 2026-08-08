@@ -18,6 +18,10 @@ define('SITE_TAGLINE', 'Outlaws Baseball');
 // ── Instagram ───────────────────────────────────────────────────────────────
 define('IG_HANDLE', 'treasurecoastoutlaws');
 define('IG_URL', 'https://www.instagram.com/treasurecoastoutlaws');
+// Long-lived Instagram API access token (bootstrap). The site refreshes and
+// caches it automatically after this. Kept server-side only, never in the
+// public code repo.
+define('IG_ACCESS_TOKEN', '');
 
 // ── Database ────────────────────────────────────────────────────────────────
 // The site uses MySQL so the database can live on a separate hosting provider.
