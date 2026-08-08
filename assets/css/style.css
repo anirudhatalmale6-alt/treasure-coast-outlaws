@@ -113,6 +113,22 @@ section.block{padding:64px 0;border-top:1px solid rgba(255,255,255,.04)}
 .sec-head h2{font-size:clamp(1.8rem,3.5vw,2.6rem)}
 .divider{height:3px;width:64px;background:linear-gradient(90deg,var(--silver),transparent);margin-top:6px;border-radius:3px}
 
+/* ── Instagram follow button + embed ─────────────────────────────────────── */
+.ig-follow{
+  display:inline-flex;align-items:center;gap:9px;flex-shrink:0;
+  font-family:'Oswald',sans-serif;text-transform:uppercase;letter-spacing:1px;
+  font-size:.82rem;font-weight:600;color:var(--silver);
+  border:1px solid var(--line);border-radius:10px;padding:10px 16px;
+  transition:border-color .15s, color .15s, transform .12s, background .2s;
+}
+.ig-follow svg{width:19px;height:19px}
+.ig-follow:hover{
+  color:#fff;border-color:transparent;transform:translateY(-2px);
+  background:linear-gradient(70deg,#f09433,#e6683c 30%,#dc2743 50%,#cc2366 70%,#bc1888);
+}
+.ig-embed{width:100%}
+.ig-embed iframe{width:100%;border:0;display:block}
+
 /* ── News cards ──────────────────────────────────────────────────────────── */
 .grid{display:grid;gap:22px}
 .grid.news{grid-template-columns:repeat(3,1fr)}

@@ -15,6 +15,10 @@ define('ADMIN_PASSWORD', 'Outlaws2026!');
 define('SITE_NAME', 'Treasure Coast Outlaws');
 define('SITE_TAGLINE', 'Outlaws Baseball');
 
+// ── Instagram ───────────────────────────────────────────────────────────────
+define('IG_HANDLE', 'treasurecoastoutlaws');
+define('IG_URL', 'https://www.instagram.com/treasurecoastoutlaws');
+
 // ── Database ────────────────────────────────────────────────────────────────
 // The site uses MySQL so the database can live on a separate hosting provider.
 // 1) Create the database on your DB host and import the included `database.sql`

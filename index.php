@@ -4,6 +4,13 @@ require_once __DIR__ . '/includes/functions.php';
 $news       = getPosts('news', 12);
 $highlights = getHighlights(60);   // photos + videos combined, newest first
 
+// Instagram widget embed (paste the code into includes/instagram-widget.html).
+$igEmbed = '';
+$igFile  = __DIR__ . '/includes/instagram-widget.html';
+if (is_file($igFile)) $igEmbed = trim(file_get_contents($igFile));
+// "Ready" = the file has real embed code, not just the placeholder comment.
+$igReady = ($igEmbed !== '' && strpos($igEmbed, 'INSTAGRAM WIDGET: paste') === false);
+
 $pageTitle = null; // homepage uses the plain site name
 include __DIR__ . '/includes/header.php';
 ?>
@@ -22,7 +29,7 @@ include __DIR__ . '/includes/header.php';
   </div>
 </header>
 
-<!-- ── News ─────────────────────────────────────────────────────────────── -->
+<!-- ── News (Instagram feed + any manual posts) ─────────────────────────── -->
 <section class="block" id="news">
   <div class="wrap">
     <div class="sec-head">
@@ -31,12 +38,20 @@ include __DIR__ . '/includes/header.php';
         <h2>Team News</h2>
         <div class="divider"></div>
       </div>
+      <a class="ig-follow" href="<?= e(IG_URL) ?>" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/>
+        </svg>
+        <span>Follow @<?= e(IG_HANDLE) ?></span>
+      </a>
     </div>
 
-    <?php if (!$news): ?>
-      <div class="empty">No news posted yet. Check back soon.</div>
-    <?php else: ?>
-      <div class="grid news">
+    <?php if ($igReady): ?>
+      <div class="ig-embed"><?= $igEmbed ?></div>
+    <?php endif; ?>
+
+    <?php if ($news): ?>
+      <div class="grid news"<?= $igReady ? ' style="margin-top:26px"' : '' ?>>
         <?php foreach ($news as $p): ?>
           <article class="card">
             <?php if (!empty($p['image_file'])): ?>
@@ -54,6 +69,8 @@ include __DIR__ . '/includes/header.php';
           </article>
         <?php endforeach; ?>
       </div>
+    <?php elseif (!$igReady): ?>
+      <div class="empty">Our latest updates will appear here — follow us on Instagram in the meantime.</div>
     <?php endif; ?>
   </div>
 </section>
