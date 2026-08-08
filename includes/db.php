@@ -27,7 +27,7 @@ function getDB(): PDO {
         exit('Database connection failed. Please check the DB settings in includes/config.php. (' . htmlspecialchars($ex->getMessage()) . ')');
     }
 
-    // Self-heal: make sure the table exists (matches database.sql).
+    // Self-heal: make sure the tables exist (matches database.sql).
     $pdo->exec("CREATE TABLE IF NOT EXISTS posts (
         id          INT AUTO_INCREMENT PRIMARY KEY,
         type        VARCHAR(10)  NOT NULL DEFAULT 'news',   -- news | photo | video
@@ -39,6 +39,17 @@ function getDB(): PDO {
         created_at  DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
         INDEX idx_type (type),
         INDEX idx_created (created_at)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+
+    $pdo->exec("CREATE TABLE IF NOT EXISTS players (
+        id          INT AUTO_INCREMENT PRIMARY KEY,
+        name        VARCHAR(120) NOT NULL,
+        number      VARCHAR(5)   NULL,                       -- jersey number (text, allows '00')
+        position    VARCHAR(40)  NULL,                       -- e.g. Pitcher, Shortstop
+        bats        VARCHAR(10)  NULL,                       -- R | L | S (switch)
+        throws      VARCHAR(10)  NULL,                       -- R | L
+        photo_file  VARCHAR(255) NULL,                       -- optional headshot
+        created_at  DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
 
     return $pdo;

@@ -104,3 +104,34 @@ function getPosts(?string $type = null, int $limit = 100): array {
     }
     return $stmt->fetchAll();
 }
+
+/** Fetch the roster, ordered by jersey number (numeric) then name. */
+function getPlayers(int $limit = 500): array {
+    $stmt = getDB()->prepare(
+        "SELECT * FROM players
+         ORDER BY (number IS NULL OR number = ''),   -- numbered players first
+                  CAST(NULLIF(number,'') AS UNSIGNED),
+                  name
+         LIMIT :lim");
+    $stmt->bindValue(':lim', $limit, PDO::PARAM_INT);
+    $stmt->execute();
+    return $stmt->fetchAll();
+}
+
+/** The batting/throwing hand options (value => label shown in the admin). */
+function battingOptions(): array { return ['R' => 'Right', 'L' => 'Left', 'S' => 'Switch']; }
+function throwingOptions(): array { return ['R' => 'Right', 'L' => 'Left']; }
+
+/** Full label for a stored bats/throws code (e.g. 'S' => 'Switch'). */
+function handLabel(?string $code): string {
+    $map = ['R' => 'Right', 'L' => 'Left', 'S' => 'Switch'];
+    $code = strtoupper(trim((string)$code));
+    return $map[$code] ?? '';
+}
+
+/** The list of positions offered in the admin dropdown. */
+function positionOptions(): array {
+    return ['Pitcher','Catcher','First Base','Second Base','Third Base','Shortstop',
+            'Left Field','Center Field','Right Field','Designated Hitter',
+            'Infielder','Outfielder','Utility'];
+}

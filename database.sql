@@ -24,3 +24,15 @@ CREATE TABLE IF NOT EXISTS posts (
     INDEX idx_type (type),
     INDEX idx_created (created_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- The team roster (shown on the Roster page).
+CREATE TABLE IF NOT EXISTS players (
+    id          INT AUTO_INCREMENT PRIMARY KEY,
+    name        VARCHAR(120) NOT NULL,
+    number      VARCHAR(5)   NULL,                       -- jersey number (text, allows '00')
+    position    VARCHAR(40)  NULL,                       -- e.g. Pitcher, Shortstop
+    bats        VARCHAR(10)  NULL,                       -- R | L | S (switch)
+    throws      VARCHAR(10)  NULL,                       -- R | L
+    photo_file  VARCHAR(255) NULL,                       -- optional headshot filename
+    created_at  DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

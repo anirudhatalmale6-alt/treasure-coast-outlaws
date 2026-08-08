@@ -13,7 +13,7 @@ $flash = null;      // ['type'=>'ok|err', 'msg'=>'...']
 if (isset($_GET['logout'])) {
     $_SESSION = [];
     session_destroy();
-    header('Location: admin.php');
+    header('Location: admin');
     exit;
 }
 
@@ -21,7 +21,7 @@ if (isset($_GET['logout'])) {
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'login') {
     if (hash_equals(ADMIN_PASSWORD, (string)($_POST['password'] ?? ''))) {
         $_SESSION['is_admin'] = true;
-        header('Location: admin.php');
+        header('Location: admin');
         exit;
     }
     $flash = ['type' => 'err', 'msg' => 'Wrong password. Try again.'];
@@ -88,6 +88,54 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'delet
     }
 }
 
+/* ── Add a player to the roster ──────────────────────────────────────────── */
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'create-player' && isAdmin()) {
+    try {
+        $name     = trim($_POST['name'] ?? '');
+        $number   = trim($_POST['number'] ?? '');
+        $position = trim($_POST['position'] ?? '');
+        $bats     = strtoupper(trim($_POST['bats'] ?? ''));
+        $throws   = strtoupper(trim($_POST['throws'] ?? ''));
+
+        if ($name === '') throw new RuntimeException('Please enter the player\'s name.');
+        if ($number !== '' && !preg_match('/^\d{1,3}$/', $number)) {
+            throw new RuntimeException('Jersey number should be digits only (e.g. 7 or 00).');
+        }
+        if (!in_array($bats, ['', 'R', 'L', 'S'], true))   $bats = '';
+        if (!in_array($throws, ['', 'R', 'L'], true))      $throws = '';
+
+        $photoFile = handleUpload('photo', 'image');   // optional headshot
+
+        getDB()->prepare("INSERT INTO players (name, number, position, bats, throws, photo_file)
+                          VALUES (:n,:num,:pos,:b,:t,:ph)")
+               ->execute([
+                   ':n'   => $name,
+                   ':num' => $number !== '' ? $number : null,
+                   ':pos' => $position !== '' ? $position : null,
+                   ':b'   => $bats !== '' ? $bats : null,
+                   ':t'   => $throws !== '' ? $throws : null,
+                   ':ph'  => $photoFile,
+               ]);
+        $flash = ['type' => 'ok', 'msg' => $name . ' added to the roster.'];
+    } catch (Throwable $ex) {
+        $flash = ['type' => 'err', 'msg' => $ex->getMessage()];
+    }
+}
+
+/* ── Remove a player ─────────────────────────────────────────────────────── */
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'delete-player' && isAdmin()) {
+    $id = (int)($_POST['id'] ?? 0);
+    $stmt = getDB()->prepare("SELECT * FROM players WHERE id = :id");
+    $stmt->execute([':id' => $id]);
+    if ($row = $stmt->fetch()) {
+        if (!empty($row['photo_file']) && is_file(UPLOAD_DIR . '/' . $row['photo_file'])) {
+            @unlink(UPLOAD_DIR . '/' . $row['photo_file']);
+        }
+        getDB()->prepare("DELETE FROM players WHERE id = :id")->execute([':id' => $id]);
+        $flash = ['type' => 'ok', 'msg' => 'Player removed.'];
+    }
+}
+
 $pageTitle = 'Admin';
 
 /* ════════════════════════════════════════════════════════════════════════════
@@ -121,6 +169,7 @@ endif;
    DASHBOARD (logged in)
    ═══════════════════════════════════════════════════════════════════════════ */
 $allPosts = getPosts(null, 200);
+$players  = getPlayers();
 include __DIR__ . '/includes/header.php';
 ?>
 <div class="admin-shell">
@@ -131,8 +180,8 @@ include __DIR__ . '/includes/header.php';
         <h2 style="margin:0">Post Manager</h2>
       </div>
       <div style="display:flex;gap:10px">
-        <a class="btn btn-ghost btn-sm" href="index.php" target="_blank">View Site &#8599;</a>
-        <a class="btn btn-ghost btn-sm" href="admin.php?logout=1">Log Out</a>
+        <a class="btn btn-ghost btn-sm" href="./" target="_blank">View Site &#8599;</a>
+        <a class="btn btn-ghost btn-sm" href="?logout=1">Log Out</a>
       </div>
     </div>
 
@@ -212,6 +261,92 @@ include __DIR__ . '/includes/header.php';
           <?php endforeach; ?>
         <?php endif; ?>
       </div>
+    </div>
+
+    <!-- ── Roster manager ─────────────────────────────────────────────── -->
+    <div class="panel" style="margin-top:26px">
+      <h3>Roster</h3>
+      <p style="color:var(--steel);margin:-8px 0 18px;font-size:.92rem">Add players here — they show up on the Roster page. A headshot is optional.</p>
+
+      <form method="post" enctype="multipart/form-data" class="roster-form">
+        <input type="hidden" name="action" value="create-player">
+        <div class="rf-grid">
+          <div class="field">
+            <label for="pl-name">Name</label>
+            <input type="text" id="pl-name" name="name" required placeholder="Player name">
+          </div>
+          <div class="field">
+            <label for="pl-number">Number</label>
+            <input type="text" id="pl-number" name="number" inputmode="numeric" placeholder="e.g. 7">
+          </div>
+          <div class="field">
+            <label for="pl-position">Position</label>
+            <select id="pl-position" name="position">
+              <option value="">— select —</option>
+              <?php foreach (positionOptions() as $pos): ?>
+                <option value="<?= e($pos) ?>"><?= e($pos) ?></option>
+              <?php endforeach; ?>
+            </select>
+          </div>
+          <div class="field">
+            <label for="pl-bats">Bats</label>
+            <select id="pl-bats" name="bats">
+              <option value="">—</option>
+              <?php foreach (battingOptions() as $v => $lbl): ?>
+                <option value="<?= e($v) ?>"><?= e($lbl) ?></option>
+              <?php endforeach; ?>
+            </select>
+          </div>
+          <div class="field">
+            <label for="pl-throws">Throws</label>
+            <select id="pl-throws" name="throws">
+              <option value="">—</option>
+              <?php foreach (throwingOptions() as $v => $lbl): ?>
+                <option value="<?= e($v) ?>"><?= e($lbl) ?></option>
+              <?php endforeach; ?>
+            </select>
+          </div>
+          <div class="field">
+            <label for="pl-photo">Headshot <span style="color:var(--muted);text-transform:none;letter-spacing:0">(optional)</span></label>
+            <input type="file" id="pl-photo" name="photo" accept="image/*">
+          </div>
+        </div>
+        <button class="btn btn-primary" type="submit">Add Player</button>
+      </form>
+
+      <h4 style="margin:26px 0 14px;font-family:'Oswald',sans-serif;text-transform:uppercase;letter-spacing:1px;color:#fff">
+        Current Roster <span style="color:var(--muted);font-weight:400">(<?= count($players) ?>)</span>
+      </h4>
+      <?php if (!$players): ?>
+        <div class="empty">No players yet. Add your first one above.</div>
+      <?php else: ?>
+        <div class="roster-admin">
+          <?php foreach ($players as $pl): ?>
+            <div class="post-row">
+              <div class="pv" <?= !empty($pl['photo_file']) ? 'style="background-image:url(\'' . UPLOAD_URL . '/' . e($pl['photo_file']) . '\')"' : '' ?>>
+                <?= empty($pl['photo_file']) ? '#' . e($pl['number'] ?: '—') : '' ?>
+              </div>
+              <div class="meta">
+                <span class="tag"><?= $pl['number'] !== null && $pl['number'] !== '' ? '#' . e($pl['number']) : 'No #' ?><?= $pl['position'] ? ' · ' . e($pl['position']) : '' ?></span>
+                <h4><?= e($pl['name']) ?></h4>
+                <small>
+                  <?php
+                    $bt = [];
+                    if ($pl['bats'])   $bt[] = 'Bats ' . e(handLabel($pl['bats']));
+                    if ($pl['throws']) $bt[] = 'Throws ' . e(handLabel($pl['throws']));
+                    echo $bt ? implode(' · ', $bt) : '&nbsp;';
+                  ?>
+                </small>
+              </div>
+              <form method="post" onsubmit="return confirm('Remove this player?')">
+                <input type="hidden" name="action" value="delete-player">
+                <input type="hidden" name="id" value="<?= (int)$pl['id'] ?>">
+                <button class="btn btn-danger btn-sm" type="submit">Delete</button>
+              </form>
+            </div>
+          <?php endforeach; ?>
+        </div>
+      <?php endif; ?>
     </div>
   </div>
 </div>

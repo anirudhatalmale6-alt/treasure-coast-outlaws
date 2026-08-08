@@ -170,6 +170,57 @@ footer.site small{display:block;margin-top:10px;font-size:.78rem}
 .lightbox img{max-width:92vw;max-height:88vh;border-radius:8px;box-shadow:var(--shadow)}
 .lightbox .close{position:absolute;top:22px;right:28px;color:#fff;font-size:2.2rem;cursor:pointer;line-height:1}
 
+/* ── Roster (public page) ────────────────────────────────────────────────── */
+.roster-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
+.player-card{
+  background:linear-gradient(180deg,var(--panel-2),var(--panel));
+  border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;
+  transition:transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+}
+.player-card:hover{transform:translateY(-4px);border-color:var(--steel);box-shadow:var(--shadow)}
+.pc-photo{
+  position:relative;aspect-ratio:4/5;background:#0e0e11 center/cover no-repeat;
+  display:flex;align-items:center;justify-content:center;
+}
+.pc-photo.noimg{
+  background:
+    radial-gradient(120% 90% at 50% 0%, rgba(150,160,175,.16), transparent 60%),
+    linear-gradient(180deg,#20232b,#121318);
+}
+.pc-number{
+  position:absolute;top:10px;left:12px;z-index:2;
+  font-family:'Oswald',sans-serif;font-weight:700;font-size:.9rem;letter-spacing:1px;
+  color:#0b0b0d;background:linear-gradient(180deg,#eef1f4,#c3c8ce);
+  padding:2px 10px;border-radius:20px;
+}
+.pc-bignum{
+  font-family:'Oswald',sans-serif;font-weight:700;font-size:4.6rem;line-height:1;
+  color:rgba(255,255,255,.12);letter-spacing:1px;user-select:none;
+}
+.pc-body{padding:16px 18px 20px}
+.pc-name{font-size:1.15rem;margin:0 0 4px}
+.pc-pos{
+  font-family:'Oswald',sans-serif;text-transform:uppercase;letter-spacing:1.5px;
+  font-size:.78rem;color:var(--steel);font-weight:600;
+}
+.pc-bt{display:flex;gap:8px;margin-top:12px}
+.pc-bt span{
+  display:inline-flex;align-items:center;gap:6px;
+  background:#0e0e12;border:1px solid var(--line);border-radius:8px;
+  padding:5px 10px;font-size:.82rem;color:var(--silver);
+}
+.pc-bt b{
+  font-family:'Oswald',sans-serif;font-size:.66rem;letter-spacing:1px;color:var(--muted);
+  background:#1c1d23;border-radius:4px;padding:1px 5px;
+}
+
+/* ── Roster form (admin) ─────────────────────────────────────────────────── */
+.rf-grid{
+  display:grid;grid-template-columns:1.6fr .8fr 1.2fr .9fr .9fr 1.3fr;gap:14px;margin-bottom:16px;
+}
+.rf-grid .field{margin-bottom:0}
+.roster-admin{margin-top:4px}
+
 /* ============================================================================
    Admin
    ========================================================================== */
@@ -222,8 +273,12 @@ footer.site small{display:block;margin-top:10px;font-size:.78rem}
   .grid.news{grid-template-columns:repeat(2,1fr)}
   .gallery{grid-template-columns:repeat(3,1fr)}
   .admin-cols{grid-template-columns:1fr}
+  .roster-grid{grid-template-columns:repeat(3,1fr)}
+  .rf-grid{grid-template-columns:1fr 1fr 1fr}
 }
 @media(max-width:680px){
+  .roster-grid{grid-template-columns:repeat(2,1fr)}
+  .rf-grid{grid-template-columns:1fr 1fr}
   .nav-links{
     position:absolute;top:74px;left:0;right:0;flex-direction:column;gap:0;
     background:#0c0c0f;border-bottom:1px solid var(--line);padding:8px 0;display:none;

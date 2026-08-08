@@ -13,7 +13,7 @@
 <body>
 <nav class="nav">
   <div class="wrap">
-    <a class="brand" href="index.php">
+    <a class="brand" href="./">
       <img src="assets/img/logo.png" alt="<?= e(SITE_NAME) ?> logo">
       <span class="brand-txt">
         <b><?= e(SITE_NAME) ?></b>
@@ -22,11 +22,11 @@
     </a>
     <button class="nav-toggle" aria-label="Menu" onclick="document.getElementById('navLinks').classList.toggle('open')">&#9776;</button>
     <div class="nav-links" id="navLinks">
-      <a href="index.php#top">Home</a>
-      <a href="index.php#news">News</a>
-      <a href="index.php#photos">Photos</a>
-      <a href="index.php#videos">Videos</a>
-      <a class="btn btn-primary btn-sm" href="admin.php">Admin</a>
+      <a href="./#top">Home</a>
+      <a href="./#news">News</a>
+      <a href="./#photos">Photos</a>
+      <a href="./#videos">Videos</a>
+      <a href="roster">Roster</a>
     </div>
   </div>
 </nav>
