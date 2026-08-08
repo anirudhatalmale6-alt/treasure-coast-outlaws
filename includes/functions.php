@@ -145,3 +145,83 @@ function positionOptions(): array {
             'Left Field','Center Field','Right Field','Designated Hitter',
             'Infielder','Outfielder','Utility'];
 }
+
+/* ── Games & stats ───────────────────────────────────────────────────────── */
+
+/** The batting-stat columns we track (db column => short label). */
+function battingStatCols(): array {
+    return ['ab'=>'AB','runs'=>'R','hits'=>'H','doubles'=>'2B','triples'=>'3B',
+            'hr'=>'HR','rbi'=>'RBI','bb'=>'BB','so'=>'SO','sb'=>'SB'];
+}
+
+/** All games. $order 'asc' (schedule, soonest first) or 'desc' (recent first). */
+function getGames(string $order = 'asc'): array {
+    $dir = strtolower($order) === 'desc' ? 'DESC' : 'ASC';
+    // NULL dates sort last either way.
+    return getDB()->query(
+        "SELECT * FROM games
+         ORDER BY (game_date IS NULL), game_date $dir, id $dir")->fetchAll();
+}
+
+function getGame(int $id): ?array {
+    $stmt = getDB()->prepare("SELECT * FROM games WHERE id = :id");
+    $stmt->execute([':id' => $id]);
+    $g = $stmt->fetch();
+    return $g ?: null;
+}
+
+/** Line-up + stats for a game, joined with player name/number, in batting order. */
+function getGameLineup(int $gameId): array {
+    $stmt = getDB()->prepare(
+        "SELECT gs.*, p.name, p.number
+         FROM game_stats gs JOIN players p ON p.id = gs.player_id
+         WHERE gs.game_id = :g
+         ORDER BY (gs.batting_order IS NULL), gs.batting_order, p.name");
+    $stmt->execute([':g' => $gameId]);
+    return $stmt->fetchAll();
+}
+
+/** Roster players NOT yet in a given game's line-up (for the add dropdown). */
+function getPlayersNotInGame(int $gameId): array {
+    $stmt = getDB()->prepare(
+        "SELECT * FROM players
+         WHERE id NOT IN (SELECT player_id FROM game_stats WHERE game_id = :g)
+         ORDER BY (number IS NULL OR number=''), CAST(NULLIF(number,'') AS UNSIGNED), name");
+    $stmt->execute([':g' => $gameId]);
+    return $stmt->fetchAll();
+}
+
+/** Season batting totals per player (only players who have appeared). */
+function getSeasonBatting(): array {
+    return getDB()->query(
+        "SELECT p.id, p.name, p.number,
+                COUNT(DISTINCT gs.game_id) AS gp,
+                SUM(gs.ab) ab, SUM(gs.runs) runs, SUM(gs.hits) hits,
+                SUM(gs.doubles) doubles, SUM(gs.triples) triples, SUM(gs.hr) hr,
+                SUM(gs.rbi) rbi, SUM(gs.bb) bb, SUM(gs.so) so, SUM(gs.sb) sb
+         FROM game_stats gs JOIN players p ON p.id = gs.player_id
+         GROUP BY p.id, p.name, p.number
+         ORDER BY (SUM(gs.ab)=0), (SUM(gs.hits)/NULLIF(SUM(gs.ab),0)) DESC, SUM(gs.hits) DESC")
+        ->fetchAll();
+}
+
+/** Batting average formatted like .333 (or .000). */
+function battingAvg($hits, $ab): string {
+    $ab = (int)$ab;
+    if ($ab <= 0) return '.000';
+    $avg = (int)$hits / $ab;
+    $s = number_format($avg, 3);          // e.g. 0.333
+    return ltrim($s, '0');                // -> .333  (1.000 stays 1.000)
+}
+
+/** "vs" for home games, "@" for away. */
+function gameVs(array $g): string {
+    return ($g['home_away'] ?? 'home') === 'away' ? '@' : 'vs';
+}
+
+/** Result letter W/L/T for a final game, or '' if not final/no scores. */
+function gameResult(array $g): string {
+    if (($g['status'] ?? '') !== 'final' || $g['our_score'] === null || $g['opp_score'] === null) return '';
+    $o = (int)$g['our_score']; $p = (int)$g['opp_score'];
+    return $o > $p ? 'W' : ($o < $p ? 'L' : 'T');
+}

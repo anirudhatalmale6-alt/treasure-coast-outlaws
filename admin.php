@@ -180,6 +180,7 @@ include __DIR__ . '/includes/header.php';
         <h2 style="margin:0">Post Manager</h2>
       </div>
       <div style="display:flex;gap:10px">
+        <a class="btn btn-primary btn-sm" href="admin-games">Games &amp; Stats</a>
         <a class="btn btn-ghost btn-sm" href="./" target="_blank">View Site &#8599;</a>
         <a class="btn btn-ghost btn-sm" href="?logout=1">Log Out</a>
       </div>

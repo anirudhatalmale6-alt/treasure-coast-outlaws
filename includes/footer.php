@@ -5,6 +5,8 @@
       <a href="./#news">News</a>
       <a href="./#highlights">Highlights</a>
       <a href="roster">Roster</a>
+      <a href="schedule">Schedule</a>
+      <a href="stats">Stats</a>
       <a href="contact">Contact</a>
     </div>
     <div class="foot-phone"><a href="tel:+13055460376">(305) 546-0376</a></div>

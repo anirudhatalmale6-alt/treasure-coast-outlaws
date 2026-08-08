@@ -323,6 +323,42 @@ footer.site small{display:block;margin-top:10px;font-size:.78rem}
 .rf-grid .field{margin-bottom:0}
 .roster-admin{margin-top:4px}
 
+/* ── Schedule ────────────────────────────────────────────────────────────── */
+.games-subhead{font-family:'Oswald',sans-serif;text-transform:uppercase;letter-spacing:2px;font-size:1rem;color:var(--steel);margin:0 0 16px}
+.games-list{display:flex;flex-direction:column;gap:12px}
+.game-row{
+  display:flex;align-items:center;gap:18px;
+  background:linear-gradient(180deg,var(--panel-2),var(--panel));
+  border:1px solid var(--line);border-radius:12px;padding:16px 20px;
+}
+.game-date{text-align:center;min-width:52px;display:flex;flex-direction:column;line-height:1.15}
+.game-date .gd-day{font-size:.68rem;letter-spacing:2px;text-transform:uppercase;color:var(--muted)}
+.game-date .gd-num{font-family:'Oswald',sans-serif;font-size:1.1rem;color:#fff;font-weight:600}
+.game-main{flex:1;min-width:0}
+.game-opp{font-family:'Oswald',sans-serif;font-size:1.15rem;text-transform:uppercase;letter-spacing:.5px;color:#fff}
+.game-vs{color:var(--steel);font-weight:400}
+.game-sub{font-size:.82rem;color:var(--muted);margin-top:2px}
+.game-score{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.gs-num{font-family:'Oswald',sans-serif;font-size:1.25rem;color:#fff}
+.game-res{font-family:'Oswald',sans-serif;font-weight:700;font-size:.8rem;padding:3px 9px;border-radius:6px;letter-spacing:1px}
+.game-res.w{background:rgba(91,187,123,.15);color:var(--ok);border:1px solid rgba(91,187,123,.4)}
+.game-res.l{background:rgba(224,85,90,.13);color:var(--danger);border:1px solid rgba(224,85,90,.4)}
+.game-res.t{background:rgba(255,255,255,.06);color:var(--steel);border:1px solid var(--line)}
+
+/* ── Stats table (public + admin entry) ─────────────────────────────────── */
+.stats-table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px}
+.stats-table{width:100%;border-collapse:collapse;min-width:640px;font-size:.9rem}
+.stats-table th,.stats-table td{padding:11px 12px;text-align:center;white-space:nowrap;border-bottom:1px solid var(--line)}
+.stats-table thead th{font-family:'Oswald',sans-serif;text-transform:uppercase;letter-spacing:1px;font-size:.72rem;color:var(--steel);background:#101013}
+.stats-table .pl,.stats-table .pname{text-align:left;color:#fff}
+.stats-table .pnum{color:var(--steel);font-family:'Oswald',sans-serif;font-size:.82rem}
+.stats-table .avg{font-family:'Oswald',sans-serif;color:#fff;font-weight:600}
+.stats-table tbody tr:hover{background:rgba(255,255,255,.02)}
+.stats-table tbody tr:last-child td{border-bottom:0}
+.stats-table .si{width:100%;min-width:44px;background:#0e0e12;border:1px solid var(--line);border-radius:6px;color:#fff;padding:6px;font-size:.85rem;text-align:center;font-family:inherit}
+.stats-table .si.sm{max-width:58px}
+.stats-table .si:focus{outline:none;border-color:var(--steel)}
+
 /* ============================================================================
    Admin
    ========================================================================== */
@@ -387,6 +423,9 @@ footer.site small{display:block;margin-top:10px;font-size:.78rem}
   .highlights-grid{grid-template-columns:1fr}
   .ig-scroll-wrap.has-overflow .ig-arrow{display:none}  /* swipe on touch instead */
   .ig-scroller .ig-post{flex-basis:80vw}                /* peek the next card */
+  .game-row{gap:12px;padding:14px 15px}
+  .game-date{min-width:44px}
+  .game-opp{font-size:1.02rem}
   .nav-links{
     position:absolute;top:74px;left:0;right:0;flex-direction:column;gap:0;
     background:#0c0c0f;border-bottom:1px solid var(--line);padding:8px 0;display:none;
