@@ -49,6 +49,8 @@ CREATE TABLE IF NOT EXISTS games (
     opp_score   INT          NULL,
     status      VARCHAR(10)  NOT NULL DEFAULT 'scheduled', -- scheduled | final
     notes       TEXT         NULL,
+    mvp_player_id INT        NULL,                        -- "Outlaw of the Game" (players.id)
+    mvp_note    VARCHAR(255) NULL,                        -- short note on why
     created_at  DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
     INDEX idx_date (game_date)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

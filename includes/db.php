@@ -64,6 +64,8 @@ function getDB(): PDO {
         opp_score   INT          NULL,
         status      VARCHAR(10)  NOT NULL DEFAULT 'scheduled', -- scheduled | final
         notes       TEXT         NULL,
+        mvp_player_id INT        NULL,                        -- Outlaw of the Game (players.id)
+        mvp_note    VARCHAR(255) NULL,                        -- why they earned it
         created_at  DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
         INDEX idx_date (game_date)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
@@ -90,6 +92,13 @@ function getDB(): PDO {
         INDEX idx_game (game_id),
         INDEX idx_player (player_id)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+
+    // Older installs: add the "Outlaw of the Game" columns if they're missing.
+    $have = $pdo->query("SHOW COLUMNS FROM games LIKE 'mvp_player_id'")->fetch();
+    if (!$have) {
+        $pdo->exec("ALTER TABLE games ADD COLUMN mvp_player_id INT NULL,
+                                      ADD COLUMN mvp_note VARCHAR(255) NULL");
+    }
 
     return $pdo;
 }

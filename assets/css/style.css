@@ -345,6 +345,99 @@ footer.site small{display:block;margin-top:10px;font-size:.78rem}
 .game-res.l{background:rgba(224,85,90,.13);color:var(--danger);border:1px solid rgba(224,85,90,.4)}
 .game-res.t{background:rgba(255,255,255,.06);color:var(--steel);border:1px solid var(--line)}
 
+/* ── Games carousel (home page) ──────────────────────────────────────────── */
+.gc-wrap{position:relative}
+.gc-scroller{
+  display:flex;gap:16px;overflow-x:auto;overflow-y:hidden;
+  scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;padding:6px 2px 14px;
+  scrollbar-width:thin;scrollbar-color:var(--line) transparent;
+}
+.gc-scroller::-webkit-scrollbar{height:8px}
+.gc-scroller::-webkit-scrollbar-track{background:transparent}
+.gc-scroller::-webkit-scrollbar-thumb{background:var(--line);border-radius:8px}
+.gc-scroller::-webkit-scrollbar-thumb:hover{background:var(--steel)}
+.gc-card{
+  flex:0 0 232px;scroll-snap-align:start;display:flex;flex-direction:column;gap:7px;
+  background:linear-gradient(180deg,var(--panel-2),var(--panel));
+  border:1px solid var(--line);border-radius:12px;padding:16px 17px 15px;
+  transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease;
+}
+.gc-card:hover{transform:translateY(-4px);border-color:var(--steel);box-shadow:var(--shadow)}
+.gc-card.upcoming{border-style:dashed}
+.gc-card.res-w{border-left:3px solid rgba(91,187,123,.65)}
+.gc-card.res-l{border-left:3px solid rgba(224,85,90,.6)}
+.gc-top{display:flex;justify-content:space-between;align-items:center}
+.gc-date{font-family:'Oswald',sans-serif;font-size:.95rem;color:#fff;letter-spacing:.5px}
+.gc-ha{font-size:.62rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted)}
+.gc-opp{font-family:'Oswald',sans-serif;font-size:1.05rem;text-transform:uppercase;color:#fff;line-height:1.2}
+.gc-vs{color:var(--steel);font-weight:400}
+.gc-score{display:flex;align-items:center;gap:9px;margin-top:2px}
+.gc-nums{font-family:'Oswald',sans-serif;font-size:1.15rem;color:#fff}
+.gc-upcoming{font-size:.8rem;color:var(--steel)}
+.gc-mvp{
+  font-size:.78rem;color:var(--silver);background:rgba(255,255,255,.05);
+  border:1px solid var(--line);border-radius:7px;padding:5px 9px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.gc-link{
+  margin-top:auto;padding-top:6px;font-family:'Oswald',sans-serif;text-transform:uppercase;
+  letter-spacing:1px;font-size:.68rem;color:var(--muted);transition:color .15s;
+}
+.gc-card:hover .gc-link{color:#fff}
+.gc-arrow{
+  position:absolute;top:78px;z-index:5;width:40px;height:40px;border-radius:50%;
+  display:none;align-items:center;justify-content:center;cursor:pointer;
+  background:rgba(11,11,13,.85);border:1px solid var(--line);color:#fff;
+  font-size:1.45rem;line-height:1;backdrop-filter:blur(6px);
+  transition:background .15s,border-color .15s,transform .12s;
+}
+.gc-wrap.has-overflow .gc-arrow{display:flex}
+.gc-arrow:hover{background:#0b0b0d;border-color:var(--steel);transform:scale(1.06)}
+.gc-arrow.prev{left:-10px}
+.gc-arrow.next{right:-10px}
+
+/* ── Single game page ────────────────────────────────────────────────────── */
+.game-hero{
+  background:linear-gradient(180deg,var(--panel-2),var(--panel));
+  border:1px solid var(--line);border-radius:var(--radius);padding:28px 30px;
+}
+.gh-vs{font-family:'Oswald',sans-serif;color:var(--steel);text-transform:uppercase;letter-spacing:2px;font-size:.9rem}
+.gh-opp{font-size:clamp(1.7rem,4vw,2.6rem);margin:4px 0 8px}
+.gh-meta{color:var(--steel);font-size:.9rem}
+.gh-score{display:flex;align-items:center;gap:14px;margin-top:16px}
+.gh-nums{font-family:'Oswald',sans-serif;font-size:2.1rem;color:#fff;letter-spacing:1px}
+.gh-upcoming{margin-top:14px;display:inline-block;font-family:'Oswald',sans-serif;text-transform:uppercase;
+  letter-spacing:2px;font-size:.78rem;color:var(--steel);border:1px solid var(--line);border-radius:20px;padding:5px 14px}
+.gh-notes{margin:16px 0 0;color:var(--steel);font-size:.94rem;white-space:pre-line}
+
+/* Outlaw of the Game card */
+.mvp-card{
+  margin-top:22px;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;
+  background:linear-gradient(180deg,#1c1d22,var(--panel));
+}
+.mvp-badge{
+  background:linear-gradient(90deg,rgba(214,217,221,.16),transparent);
+  border-bottom:1px solid var(--line);padding:11px 22px;
+  font-family:'Oswald',sans-serif;text-transform:uppercase;letter-spacing:2.5px;
+  font-size:.8rem;font-weight:600;color:#fff;
+}
+.mvp-body{display:flex;gap:22px;align-items:center;padding:22px}
+.mvp-photo{
+  width:96px;height:96px;border-radius:50%;flex-shrink:0;background:#0e0e11 center/cover no-repeat;
+  border:2px solid var(--line);display:flex;align-items:center;justify-content:center;
+}
+.mvp-photo.noimg span{font-family:'Oswald',sans-serif;font-size:1.9rem;color:rgba(255,255,255,.28)}
+.mvp-info h3{font-size:1.4rem;margin:0 0 3px}
+.mvp-pos{font-family:'Oswald',sans-serif;text-transform:uppercase;letter-spacing:1.5px;font-size:.76rem;color:var(--steel)}
+.mvp-note{margin:9px 0 0;color:var(--silver);font-size:.95rem}
+.mvp-line{margin-top:8px;font-family:'Oswald',sans-serif;letter-spacing:1px;color:#fff;font-size:.95rem}
+.stats-table tr.is-mvp{background:rgba(255,255,255,.035)}
+.mvp-star{color:#e8c66a}
+
+/* Admin: Outlaw of the Game picker */
+.mvp-pick{border:1px solid var(--line);border-radius:12px;padding:16px 18px 4px;margin:6px 0 18px;background:rgba(255,255,255,.02)}
+.mvp-pick-head{font-family:'Oswald',sans-serif;text-transform:uppercase;letter-spacing:2px;font-size:.78rem;color:#fff;margin-bottom:12px}
+
 /* ── Stats table (public + admin entry) ─────────────────────────────────── */
 .stats-table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px}
 .stats-table{width:100%;border-collapse:collapse;min-width:640px;font-size:.9rem}
@@ -426,6 +519,10 @@ footer.site small{display:block;margin-top:10px;font-size:.78rem}
   .game-row{gap:12px;padding:14px 15px}
   .game-date{min-width:44px}
   .game-opp{font-size:1.02rem}
+  .gc-wrap.has-overflow .gc-arrow{display:none}   /* swipe on touch */
+  .gc-card{flex-basis:70vw}
+  .mvp-body{flex-direction:column;text-align:center;gap:14px}
+  .game-hero{padding:22px 20px}
   .nav-links{
     position:absolute;top:74px;left:0;right:0;flex-direction:column;gap:0;
     background:#0c0c0f;border-bottom:1px solid var(--line);padding:8px 0;display:none;

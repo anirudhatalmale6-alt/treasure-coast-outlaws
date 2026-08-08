@@ -205,6 +205,47 @@ function getSeasonBatting(): array {
         ->fetchAll();
 }
 
+/** One player row (used for the "Outlaw of the Game"). */
+function getPlayer(int $id): ?array {
+    $stmt = getDB()->prepare("SELECT * FROM players WHERE id = :id");
+    $stmt->execute([':id' => $id]);
+    $p = $stmt->fetch();
+    return $p ?: null;
+}
+
+/** One player's stat line for one game (or null if they didn't play). */
+function getPlayerGameStats(int $gameId, int $playerId): ?array {
+    $stmt = getDB()->prepare("SELECT * FROM game_stats WHERE game_id = :g AND player_id = :p");
+    $stmt->execute([':g' => $gameId, ':p' => $playerId]);
+    $r = $stmt->fetch();
+    return $r ?: null;
+}
+
+/**
+ * Games for the home-page carousel, in date order, plus the index of the most
+ * recently played (final) game so the carousel can open scrolled to it.
+ * Returns ['games' => [...], 'startIndex' => int].
+ */
+function getCarouselGames(int $limit = 20): array {
+    $games = getGames('asc');           // chronological
+    if (!$games) return ['games' => [], 'startIndex' => 0];
+
+    // Index of the LAST final game (that's where the carousel should start).
+    $start = 0;
+    foreach ($games as $i => $g) {
+        if (($g['status'] ?? '') === 'final') $start = $i;
+    }
+
+    // Keep it to a sensible window around that game.
+    if (count($games) > $limit) {
+        $from  = max(0, $start - (int)floor($limit / 2));
+        $from  = min($from, count($games) - $limit);
+        $games = array_slice($games, $from, $limit);
+        $start = $start - $from;
+    }
+    return ['games' => $games, 'startIndex' => max(0, $start)];
+}
+
 /** Batting average formatted like .333 (or .000). */
 function battingAvg($hits, $ab): string {
     $ab = (int)$ab;

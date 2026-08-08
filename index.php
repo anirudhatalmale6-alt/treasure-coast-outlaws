@@ -8,6 +8,9 @@ $highlights = getHighlights(60);   // photos + videos combined, newest first
 require_once __DIR__ . '/includes/instagram.php';
 $igPosts = igGetPosts();
 
+// Games carousel — chronological, opening at the most recent played game.
+$carousel = getCarouselGames(20);
+
 $pageTitle = null; // homepage uses the plain site name
 include __DIR__ . '/includes/header.php';
 ?>
@@ -25,6 +28,56 @@ include __DIR__ . '/includes/header.php';
     </div>
   </div>
 </header>
+
+<!-- ── Games carousel ───────────────────────────────────────────────────── -->
+<?php if ($carousel['games']): ?>
+<section class="block" id="games" style="padding-bottom:40px">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <span class="section-label">The Season</span>
+        <h2>Games</h2>
+        <div class="divider"></div>
+      </div>
+      <a class="btn btn-ghost btn-sm" href="schedule">Full Schedule &#8594;</a>
+    </div>
+
+    <div class="gc-wrap">
+      <button type="button" class="gc-arrow prev" aria-label="Previous games" onclick="gcScroll(-1)">&#8249;</button>
+      <div class="gc-scroller" id="gcScroller" data-start="<?= (int)$carousel['startIndex'] ?>">
+        <?php foreach ($carousel['games'] as $i => $g):
+            $res    = gameResult($g);
+            $isNext = ($g['status'] ?? '') !== 'final';
+        ?>
+          <a class="gc-card<?= $res !== '' ? ' res-' . strtolower($res) : '' ?><?= $isNext ? ' upcoming' : '' ?>"
+             href="game?id=<?= (int)$g['id'] ?>" data-idx="<?= $i ?>">
+            <div class="gc-top">
+              <span class="gc-date"><?= $g['game_date'] ? e(date('M j', strtotime($g['game_date']))) : 'TBD' ?></span>
+              <span class="gc-ha"><?= ($g['home_away'] ?? 'home') === 'away' ? 'Away' : 'Home' ?></span>
+            </div>
+            <div class="gc-opp"><span class="gc-vs"><?= e(gameVs($g)) ?></span> <?= e($g['opponent']) ?></div>
+            <?php if ($res !== ''): ?>
+              <div class="gc-score">
+                <span class="game-res <?= strtolower($res) ?>"><?= $res ?></span>
+                <span class="gc-nums"><?= (int)$g['our_score'] ?>&ndash;<?= (int)$g['opp_score'] ?></span>
+              </div>
+              <?php if (!empty($g['mvp_player_id'])): $m = getPlayer((int)$g['mvp_player_id']); ?>
+                <?php if ($m): ?>
+                  <div class="gc-mvp">&#9733; <?= e($m['name']) ?></div>
+                <?php endif; ?>
+              <?php endif; ?>
+            <?php else: ?>
+              <div class="gc-upcoming"><?= $g['game_time'] ? e($g['game_time']) : 'Upcoming' ?></div>
+            <?php endif; ?>
+            <span class="gc-link">View game &#8594;</span>
+          </a>
+        <?php endforeach; ?>
+      </div>
+      <button type="button" class="gc-arrow next" aria-label="More games" onclick="gcScroll(1)">&#8250;</button>
+    </div>
+  </div>
+</section>
+<?php endif; ?>
 
 <!-- ── News (Instagram feed + any manual posts) ─────────────────────────── -->
 <section class="block" id="news">
@@ -162,6 +215,26 @@ function igScroll(dir){
   var step = card ? (card.getBoundingClientRect().width + 20) : (s.clientWidth * 0.8);
   s.scrollBy({ left: dir * step, behavior: 'smooth' });
 }
+function gcScroll(dir){
+  var s = document.getElementById('gcScroller');
+  if (!s) return;
+  var card = s.querySelector('.gc-card');
+  var step = card ? (card.getBoundingClientRect().width + 16) : (s.clientWidth * 0.8);
+  s.scrollBy({ left: dir * step, behavior: 'smooth' });
+}
+function gcInit(){
+  var s = document.getElementById('gcScroller');
+  if (!s) return;
+  // Open the carousel on the most recently played game.
+  var idx  = parseInt(s.getAttribute('data-start') || '0', 10);
+  var card = s.querySelectorAll('.gc-card')[idx];
+  if (card) s.scrollLeft = Math.max(0, card.offsetLeft - s.offsetLeft - 8);
+  var wrap = s.closest('.gc-wrap');
+  if (wrap) wrap.classList.toggle('has-overflow', (s.scrollWidth - s.clientWidth) > 8);
+}
+window.addEventListener('load', gcInit);
+window.addEventListener('resize', gcInit);
+
 function igSyncArrows(){
   var s = document.getElementById('igScroller');
   if (!s) return;

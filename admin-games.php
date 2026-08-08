@@ -44,7 +44,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $opp = trim($_POST['opponent'] ?? '');
         if (!$id || $opp === '') goFlash('err', 'Opponent is required.', 'admin-games?game=' . $id);
         $stmt = $pdo->prepare("UPDATE games SET opponent=:o, game_date=:d, game_time=:t, home_away=:h,
-                               location=:l, our_score=:us, opp_score=:os, status=:s, notes=:n WHERE id=:id");
+                               location=:l, our_score=:us, opp_score=:os, status=:s, notes=:n,
+                               mvp_player_id=:mvp, mvp_note=:mvpn WHERE id=:id");
         $stmt->execute([
             ':o'  => $opp,
             ':d'  => ($_POST['game_date'] ?? '') !== '' ? $_POST['game_date'] : null,
@@ -55,6 +56,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ':os' => ($_POST['opp_score'] ?? '') !== '' ? (int)$_POST['opp_score'] : null,
             ':s'  => ($_POST['status'] ?? 'scheduled') === 'final' ? 'final' : 'scheduled',
             ':n'  => trim($_POST['notes'] ?? '') ?: null,
+            ':mvp'  => ($_POST['mvp_player_id'] ?? '') !== '' ? (int)$_POST['mvp_player_id'] : null,
+            ':mvpn' => trim($_POST['mvp_note'] ?? '') ?: null,
             ':id' => $id,
         ]);
         goFlash('ok', 'Game saved.', 'admin-games?game=' . $id);
@@ -231,6 +234,36 @@ include __DIR__ . '/includes/header.php';
           </div>
         </div>
         <div class="field"><label>Notes (optional)</label><textarea name="notes" style="min-height:70px"><?= e($game['notes']) ?></textarea></div>
+
+        <!-- Outlaw of the Game -->
+        <div class="mvp-pick">
+          <div class="mvp-pick-head">&#9733; Outlaw of the Game</div>
+          <div class="cf-row">
+            <div class="field">
+              <label>Player</label>
+              <select name="mvp_player_id">
+                <option value="">— none yet —</option>
+                <?php
+                  // Prefer this game's line-up; fall back to the whole roster.
+                  $mvpChoices = getGameLineup($gameId);
+                  if (!$mvpChoices) $mvpChoices = getPlayers();
+                  foreach ($mvpChoices as $c):
+                      $cid = (int)($c['player_id'] ?? $c['id']);
+                ?>
+                  <option value="<?= $cid ?>" <?= (int)$game['mvp_player_id'] === $cid ? 'selected' : '' ?>>
+                    <?= ($c['number'] ?? '') !== '' && $c['number'] !== null ? '#'.e($c['number']).' ' : '' ?><?= e($c['name']) ?>
+                  </option>
+                <?php endforeach; ?>
+              </select>
+              <div class="hint">Players in this game's line-up.</div>
+            </div>
+            <div class="field">
+              <label>Why (optional)</label>
+              <input type="text" name="mvp_note" maxlength="255" value="<?= e($game['mvp_note']) ?>" placeholder="e.g. 3-for-4 with a home run">
+            </div>
+          </div>
+        </div>
+
         <button class="btn btn-primary" type="submit">Save Game</button>
       </form>
     </div>
