@@ -157,7 +157,29 @@ section.block{padding:64px 0;border-top:1px solid rgba(255,255,255,.04)}
   color:var(--muted);background:rgba(255,255,255,.015);
 }
 
+/* ── Contact page ────────────────────────────────────────────────────────── */
+.contact-cols{display:grid;grid-template-columns:1.4fr 1fr;gap:26px;align-items:start}
+.cf-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.contact-info{
+  background:linear-gradient(180deg,var(--panel-2),var(--panel));
+  border:1px solid var(--line);border-radius:var(--radius);padding:28px 26px;
+}
+.contact-info h3{font-size:1.25rem;margin-bottom:10px}
+.contact-info p{color:var(--steel);margin:0 0 20px;font-size:.95rem}
+.contact-phone{
+  display:flex;align-items:center;gap:12px;
+  background:#0e0e12;border:1px solid var(--line);border-radius:12px;
+  padding:16px 18px;transition:border-color .15s, transform .12s;
+}
+.contact-phone:hover{border-color:var(--steel);transform:translateY(-2px)}
+.contact-phone svg{width:26px;height:26px;color:var(--silver);flex-shrink:0}
+.contact-phone span{font-family:'Oswald',sans-serif;font-size:1.45rem;letter-spacing:1px;color:#fff}
+.contact-note{margin-top:16px;font-size:.82rem;color:var(--muted)}
+
 /* ── Footer ──────────────────────────────────────────────────────────────── */
+.foot-phone{margin:6px 0}
+.foot-phone a{font-family:'Oswald',sans-serif;letter-spacing:1px;color:var(--silver)}
+.foot-phone a:hover{color:#fff}
 footer.site{border-top:1px solid var(--line);padding:40px 0;margin-top:20px;color:var(--muted);text-align:center}
 footer.site img{width:60px;margin:0 auto 14px;opacity:.9}
 footer.site .links{display:flex;gap:22px;justify-content:center;margin:12px 0;flex-wrap:wrap}
@@ -275,10 +297,12 @@ footer.site small{display:block;margin-top:10px;font-size:.78rem}
   .admin-cols{grid-template-columns:1fr}
   .roster-grid{grid-template-columns:repeat(3,1fr)}
   .rf-grid{grid-template-columns:1fr 1fr 1fr}
+  .contact-cols{grid-template-columns:1fr}
 }
 @media(max-width:680px){
   .roster-grid{grid-template-columns:repeat(2,1fr)}
   .rf-grid{grid-template-columns:1fr 1fr}
+  .cf-row{grid-template-columns:1fr}
   .nav-links{
     position:absolute;top:74px;left:0;right:0;flex-direction:column;gap:0;
     background:#0c0c0f;border-bottom:1px solid var(--line);padding:8px 0;display:none;

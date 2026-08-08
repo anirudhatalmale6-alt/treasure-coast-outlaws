@@ -6,7 +6,9 @@
       <a href="./#photos">Photos</a>
       <a href="./#videos">Videos</a>
       <a href="roster">Roster</a>
+      <a href="contact">Contact</a>
     </div>
+    <div class="foot-phone"><a href="tel:+13055460376">(305) 546-0376</a></div>
     <small>&copy; <?= date('Y') ?> <?= e(SITE_NAME) ?> — <?= e(SITE_TAGLINE) ?>. All rights reserved.</small>
   </div>
 </footer>

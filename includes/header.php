@@ -27,6 +27,7 @@
       <a href="./#photos">Photos</a>
       <a href="./#videos">Videos</a>
       <a href="roster">Roster</a>
+      <a href="contact">Contact</a>
     </div>
   </div>
 </nav>
