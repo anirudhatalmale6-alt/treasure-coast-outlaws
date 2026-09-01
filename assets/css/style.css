@@ -365,11 +365,11 @@ footer.site small{display:block;margin-top:10px;font-size:.78rem}
   border:1px solid rgba(232,198,106,.35);background:rgba(232,198,106,.08);
   border-radius:20px;padding:5px 13px;
 }
-.pp-details{
-  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;
-  margin-top:24px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden;
-}
-.pp-detail{background:#101013;padding:13px 16px}
+/* Separate tiles rather than one bordered block: most players will have only
+   two or three details filled in, and a shared frame leaves visible empty
+   cells where the rest of the row would be. */
+.pp-details{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:24px}
+.pp-detail{background:#101013;border:1px solid var(--line);border-radius:10px;padding:13px 16px}
 .ppd-label{
   display:block;font-family:'Oswald',sans-serif;text-transform:uppercase;letter-spacing:1.5px;
   font-size:.66rem;color:var(--muted);margin-bottom:4px;
