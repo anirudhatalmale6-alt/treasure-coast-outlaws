@@ -105,9 +105,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'creat
         if (!in_array($throws, ['', 'R', 'L'], true))      $throws = '';
 
         $photoFile = handleUpload('photo', 'image');   // optional headshot
+        $profile   = playerProfileInput($_POST);       // height/weight/hometown/school/bio
 
-        getDB()->prepare("INSERT INTO players (name, number, position, bats, throws, photo_file)
-                          VALUES (:n,:num,:pos,:b,:t,:ph)")
+        getDB()->prepare("INSERT INTO players (name, number, position, bats, throws, photo_file,
+                                               height, weight, hometown, school, bio)
+                          VALUES (:n,:num,:pos,:b,:t,:ph,:h,:w,:home,:school,:bio)")
                ->execute([
                    ':n'   => $name,
                    ':num' => $number !== '' ? $number : null,
@@ -115,6 +117,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'creat
                    ':b'   => $bats !== '' ? $bats : null,
                    ':t'   => $throws !== '' ? $throws : null,
                    ':ph'  => $photoFile,
+                   ':h'      => $profile['height'],
+                   ':w'      => $profile['weight'],
+                   ':home'   => $profile['hometown'],
+                   ':school' => $profile['school'],
+                   ':bio'    => $profile['bio'],
                ]);
         $flash = ['type' => 'ok', 'msg' => $name . ' added to the roster.'];
     } catch (Throwable $ex) {
@@ -159,8 +166,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'updat
             $photoFile = null;
         }
 
+        $profile = playerProfileInput($_POST);
+
         getDB()->prepare("UPDATE players SET name=:n, number=:num, position=:pos,
-                          bats=:b, throws=:t, photo_file=:ph WHERE id=:id")
+                          bats=:b, throws=:t, photo_file=:ph,
+                          height=:h, weight=:w, hometown=:home, school=:school, bio=:bio
+                          WHERE id=:id")
                ->execute([
                    ':n'   => $name,
                    ':num' => $number !== '' ? $number : null,
@@ -168,6 +179,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'updat
                    ':b'   => $bats !== '' ? $bats : null,
                    ':t'   => $throws !== '' ? $throws : null,
                    ':ph'  => $photoFile,
+                   ':h'      => $profile['height'],
+                   ':w'      => $profile['weight'],
+                   ':home'   => $profile['hometown'],
+                   ':school' => $profile['school'],
+                   ':bio'    => $profile['bio'],
                    ':id'  => $id,
                ]);
         $_SESSION['admin_flash'] = ['type' => 'ok', 'msg' => $name . ' updated.'];
@@ -386,6 +402,32 @@ include __DIR__ . '/includes/header.php';
           </div>
         </div>
 
+        <!-- Profile details — all optional. Anything left blank simply doesn't
+             show on the player's profile page. -->
+        <div class="rf-grid rf-profile">
+          <div class="field">
+            <label for="pl-height">Height <span class="opt">(optional)</span></label>
+            <input type="text" id="pl-height" name="height" placeholder="e.g. 6'1&quot;" value="<?= e($editPlayer['height'] ?? '') ?>">
+          </div>
+          <div class="field">
+            <label for="pl-weight">Weight <span class="opt">(optional)</span></label>
+            <input type="text" id="pl-weight" name="weight" placeholder="e.g. 190 lbs" value="<?= e($editPlayer['weight'] ?? '') ?>">
+          </div>
+          <div class="field">
+            <label for="pl-hometown">Hometown <span class="opt">(optional)</span></label>
+            <input type="text" id="pl-hometown" name="hometown" placeholder="e.g. Port St. Lucie, FL" value="<?= e($editPlayer['hometown'] ?? '') ?>">
+          </div>
+          <div class="field">
+            <label for="pl-school">School <span class="opt">(optional)</span></label>
+            <input type="text" id="pl-school" name="school" placeholder="High school or college" value="<?= e($editPlayer['school'] ?? '') ?>">
+          </div>
+        </div>
+        <div class="field">
+          <label for="pl-bio">About this player <span class="opt">(optional)</span></label>
+          <textarea id="pl-bio" name="bio" placeholder="A short bio — how he plays, where he came from, anything worth telling."><?= e($editPlayer['bio'] ?? '') ?></textarea>
+          <div class="hint">Shows in the About section of his profile page.</div>
+        </div>
+
         <?php if ($editPlayer && !empty($editPlayer['photo_file'])): ?>
           <div class="cur-photo">
             <div class="cur-photo-img" style="background-image:url('<?= UPLOAD_URL . '/' . e($editPlayer['photo_file']) ?>')"></div>
@@ -425,6 +467,7 @@ include __DIR__ . '/includes/header.php';
                   ?>
                 </small>
               </div>
+              <a class="btn btn-ghost btn-sm" href="player?id=<?= (int)$pl['id'] ?>" target="_blank" rel="noopener">View</a>
               <a class="btn btn-ghost btn-sm" href="admin?edit_player=<?= (int)$pl['id'] ?>#roster">Edit</a>
               <form method="post" onsubmit="return confirm('Remove this player?')">
                 <input type="hidden" name="action" value="delete-player">

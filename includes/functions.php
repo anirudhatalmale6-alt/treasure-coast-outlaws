@@ -213,6 +213,92 @@ function getPlayer(int $id): ?array {
     return $p ?: null;
 }
 
+/**
+ * Read the optional profile fields off a submitted admin form, trimmed and
+ * capped to the column widths. Blank comes back as null rather than '', so
+ * playerProfileFields() can skip it without having to test for both.
+ */
+function playerProfileInput(array $post): array {
+    $take = function (string $key, int $max) use ($post) {
+        $v = trim((string)($post[$key] ?? ''));
+        if ($v === '') return null;
+        return function_exists('mb_substr') ? mb_substr($v, 0, $max) : substr($v, 0, $max);
+    };
+    return [
+        'height'   => $take('height', 20),
+        'weight'   => $take('weight', 20),
+        'hometown' => $take('hometown', 120),
+        'school'   => $take('school', 140),
+        'bio'      => $take('bio', 4000),
+    ];
+}
+
+/**
+ * The optional profile details, as label => value, skipping anything the admin
+ * hasn't filled in. The profile page renders whatever comes back, so a player
+ * with nothing entered simply shows no details block rather than a grid of
+ * dashes.
+ */
+function playerProfileFields(array $p): array {
+    $out = [];
+    if (!empty($p['height']))   $out['Height']   = $p['height'];
+    if (!empty($p['weight']))   $out['Weight']   = $p['weight'];
+    if (!empty($p['bats']))     $out['Bats']     = handLabel($p['bats']);
+    if (!empty($p['throws']))   $out['Throws']   = handLabel($p['throws']);
+    if (!empty($p['hometown'])) $out['Hometown'] = $p['hometown'];
+    if (!empty($p['school']))   $out['School']   = $p['school'];
+    return $out;
+}
+
+/**
+ * One player's season batting totals, or null if they haven't appeared in a
+ * game yet. Same shape as a getSeasonBatting() row so the same helpers work.
+ */
+function getPlayerSeasonTotals(int $playerId): ?array {
+    $stmt = getDB()->prepare(
+        "SELECT COUNT(DISTINCT gs.game_id) AS gp,
+                SUM(gs.ab) ab, SUM(gs.runs) runs, SUM(gs.hits) hits,
+                SUM(gs.doubles) doubles, SUM(gs.triples) triples, SUM(gs.hr) hr,
+                SUM(gs.rbi) rbi, SUM(gs.bb) bb, SUM(gs.so) so, SUM(gs.sb) sb
+         FROM game_stats gs
+         JOIN games g ON g.id = gs.game_id
+         WHERE gs.player_id = :p");
+    $stmt->execute([':p' => $playerId]);
+    $r = $stmt->fetch();
+    return ($r && (int)$r['gp'] > 0) ? $r : null;
+}
+
+/**
+ * Every game this player has a stat line in, most recent first, with the game
+ * details attached and a flag for the ones where he was Outlaw of the Game.
+ */
+function getPlayerGameLog(int $playerId): array {
+    $stmt = getDB()->prepare(
+        "SELECT gs.*, g.opponent, g.game_date, g.home_away, g.status,
+                g.our_score, g.opp_score, g.mvp_player_id
+         FROM game_stats gs
+         JOIN games g ON g.id = gs.game_id
+         WHERE gs.player_id = :p
+         ORDER BY (g.game_date IS NULL), g.game_date DESC, g.id DESC");
+    $stmt->execute([':p' => $playerId]);
+    return $stmt->fetchAll();
+}
+
+/**
+ * The players either side of this one in roster order, so the profile page can
+ * offer prev/next without loading the roster twice.
+ * Returns ['prev' => row|null, 'next' => row|null].
+ */
+function playerNeighbours(int $playerId): array {
+    $roster = getPlayers();
+    foreach ($roster as $i => $p) {
+        if ((int)$p['id'] === $playerId) {
+            return ['prev' => $roster[$i - 1] ?? null, 'next' => $roster[$i + 1] ?? null];
+        }
+    }
+    return ['prev' => null, 'next' => null];
+}
+
 /** One player's stat line for one game (or null if they didn't play). */
 function getPlayerGameStats(int $gameId, int $playerId): ?array {
     $stmt = getDB()->prepare("SELECT * FROM game_stats WHERE game_id = :g AND player_id = :p");

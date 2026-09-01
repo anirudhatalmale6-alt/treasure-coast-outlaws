@@ -23,7 +23,9 @@ include __DIR__ . '/includes/header.php';
     <?php else: ?>
       <div class="roster-grid">
         <?php foreach ($players as $pl): ?>
-          <article class="player-card">
+          <!-- The whole card is the link, so anywhere you tap opens the profile. -->
+          <a class="player-card" href="player?id=<?= (int)$pl['id'] ?>"
+             aria-label="<?= e($pl['name']) ?> — player profile">
             <div class="pc-photo<?= empty($pl['photo_file']) ? ' noimg' : '' ?>"
                  <?= !empty($pl['photo_file']) ? 'style="background-image:url(\'' . UPLOAD_URL . '/' . e($pl['photo_file']) . '\')"' : '' ?>>
               <?php if (($pl['number'] ?? '') !== ''): ?>
@@ -48,8 +50,9 @@ include __DIR__ . '/includes/header.php';
                   <?php endif; ?>
                 </div>
               <?php endif; ?>
+              <span class="pc-view">View profile &#8594;</span>
             </div>
-          </article>
+          </a>
         <?php endforeach; ?>
       </div>
     <?php endif; ?>

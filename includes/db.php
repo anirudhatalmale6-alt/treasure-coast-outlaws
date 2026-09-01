@@ -49,6 +49,11 @@ function getDB(): PDO {
         bats        VARCHAR(10)  NULL,                       -- R | L | S (switch)
         throws      VARCHAR(10)  NULL,                       -- R | L
         photo_file  VARCHAR(255) NULL,                       -- optional headshot
+        height      VARCHAR(20)  NULL,                       -- profile: e.g. 6'1
+        weight      VARCHAR(20)  NULL,                       -- profile: e.g. 190 lbs
+        hometown    VARCHAR(120) NULL,                       -- profile
+        school      VARCHAR(140) NULL,                       -- profile: high school / college
+        bio         TEXT         NULL,                       -- profile: free text
         created_at  DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
 
@@ -98,6 +103,26 @@ function getDB(): PDO {
     if (!$have) {
         $pdo->exec("ALTER TABLE games ADD COLUMN mvp_player_id INT NULL,
                                       ADD COLUMN mvp_note VARCHAR(255) NULL");
+    }
+
+    // Older installs: add the player-profile columns if they're missing. Read
+    // the whole column list once and add only what's absent, so a half-applied
+    // upgrade (one column added, the rest not) still repairs itself instead of
+    // failing on a duplicate-column error.
+    $cols = array_column($pdo->query("SHOW COLUMNS FROM players")->fetchAll(), 'Field');
+    $wanted = [
+        'height'   => "ADD COLUMN height VARCHAR(20) NULL",
+        'weight'   => "ADD COLUMN weight VARCHAR(20) NULL",
+        'hometown' => "ADD COLUMN hometown VARCHAR(120) NULL",
+        'school'   => "ADD COLUMN school VARCHAR(140) NULL",
+        'bio'      => "ADD COLUMN bio TEXT NULL",
+    ];
+    $add = [];
+    foreach ($wanted as $col => $sql) {
+        if (!in_array($col, $cols, true)) $add[] = $sql;
+    }
+    if ($add) {
+        $pdo->exec("ALTER TABLE players " . implode(', ', $add));
     }
 
     return $pdo;

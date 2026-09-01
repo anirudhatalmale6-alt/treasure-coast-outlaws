@@ -34,6 +34,11 @@ CREATE TABLE IF NOT EXISTS players (
     bats        VARCHAR(10)  NULL,                       -- R | L | S (switch)
     throws      VARCHAR(10)  NULL,                       -- R | L
     photo_file  VARCHAR(255) NULL,                       -- optional headshot filename
+    height      VARCHAR(20)  NULL,                       -- profile: e.g. 6'1
+    weight      VARCHAR(20)  NULL,                       -- profile: e.g. 190 lbs
+    hometown    VARCHAR(120) NULL,                       -- profile
+    school      VARCHAR(140) NULL,                       -- profile: high school / college
+    bio         TEXT         NULL,                       -- profile: free text
     created_at  DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 

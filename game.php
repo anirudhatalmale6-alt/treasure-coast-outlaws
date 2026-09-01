@@ -71,7 +71,7 @@ include __DIR__ . '/includes/header.php';
             <?php endif; ?>
           </div>
           <div class="mvp-info">
-            <h3><?= ($mvp['number'] ?? '') !== '' ? '<span class="pnum">#'.e($mvp['number']).'</span> ' : '' ?><?= e($mvp['name']) ?></h3>
+            <h3><?= ($mvp['number'] ?? '') !== '' ? '<span class="pnum">#'.e($mvp['number']).'</span> ' : '' ?><a class="pp-gamelink" href="player?id=<?= (int)$mvp['id'] ?>"><?= e($mvp['name']) ?></a></h3>
             <?php if (!empty($mvp['position'])): ?><div class="mvp-pos"><?= e($mvp['position']) ?></div><?php endif; ?>
             <?php if (!empty($game['mvp_note'])): ?><p class="mvp-note"><?= e($game['mvp_note']) ?></p><?php endif; ?>
             <?php if ($mvpStats): ?>
@@ -114,7 +114,7 @@ include __DIR__ . '/includes/header.php';
             <?php foreach ($lineup as $r): ?>
               <tr<?= ($mvp && (int)$r['player_id'] === (int)$mvp['id']) ? ' class="is-mvp"' : '' ?>>
                 <td class="pl">
-                  <?= ($r['number'] ?? '') !== '' && $r['number'] !== null ? '<span class="pnum">#'.e($r['number']).'</span> ' : '' ?><?= e($r['name']) ?>
+                  <?= ($r['number'] ?? '') !== '' && $r['number'] !== null ? '<span class="pnum">#'.e($r['number']).'</span> ' : '' ?><a class="pp-gamelink" href="player?id=<?= (int)$r['player_id'] ?>"><?= e($r['name']) ?></a>
                   <?= ($mvp && (int)$r['player_id'] === (int)$mvp['id']) ? ' <span class="mvp-star" title="Outlaw of the Game">&#9733;</span>' : '' ?>
                 </td>
                 <td><?= e($r['position'] ?: '—') ?></td>

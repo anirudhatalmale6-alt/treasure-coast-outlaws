@@ -35,7 +35,7 @@ include __DIR__ . '/includes/header.php';
           <tbody>
             <?php foreach ($stats as $s): ?>
               <tr>
-                <td class="pl"><?= $s['number']!==''&&$s['number']!==null ? '<span class="pnum">#'.e($s['number']).'</span> ' : '' ?><?= e($s['name']) ?></td>
+                <td class="pl"><?= $s['number']!==''&&$s['number']!==null ? '<span class="pnum">#'.e($s['number']).'</span> ' : '' ?><a class="pp-gamelink" href="player?id=<?= (int)$s['id'] ?>"><?= e($s['name']) ?></a></td>
                 <td><?= (int)$s['gp'] ?></td>
                 <?php foreach (array_keys(battingStatCols()) as $c): ?><td><?= (int)$s[$c] ?></td><?php endforeach; ?>
                 <td class="avg"><?= e(battingAvg($s['hits'], $s['ab'])) ?></td>
