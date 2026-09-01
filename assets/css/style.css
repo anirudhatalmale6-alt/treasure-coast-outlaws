@@ -401,8 +401,9 @@ footer.site small{display:block;margin-top:10px;font-size:.78rem}
 .pp-gs{font-family:'Oswald',sans-serif;color:var(--steel);font-size:.85rem;margin-left:6px}
 .pp-nav{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:34px;flex-wrap:wrap}
 
-/* Admin: the optional profile fields sit under the main row */
-.rf-profile{grid-template-columns:repeat(4,minmax(0,1fr))}
+/* Admin: the optional profile fields sit under the main row. Two classes, so
+   this beats .rf-grid's column widths regardless of which is defined first. */
+.rf-grid.rf-profile{grid-template-columns:repeat(4,minmax(0,1fr))}
 .field label .opt{color:var(--muted);text-transform:none;letter-spacing:0;font-weight:400}
 
 /* ── Roster form (admin) ─────────────────────────────────────────────────── */
@@ -610,7 +611,7 @@ footer.site small{display:block;margin-top:10px;font-size:.78rem}
   .admin-cols{grid-template-columns:1fr}
   .roster-grid{grid-template-columns:repeat(3,1fr)}
   .rf-grid{grid-template-columns:1fr 1fr 1fr}
-  .rf-profile{grid-template-columns:1fr 1fr}
+  .rf-grid.rf-profile{grid-template-columns:1fr 1fr}
   .pp-hero{grid-template-columns:220px 1fr;gap:24px}
   .pp-tiles{grid-template-columns:repeat(4,minmax(0,1fr))}
   .contact-cols{grid-template-columns:1fr}
@@ -640,7 +641,7 @@ footer.site small{display:block;margin-top:10px;font-size:.78rem}
   .pp-bio{padding:20px}
   .pp-nav{flex-direction:column;align-items:stretch}
   .pp-nav .btn{text-align:center}
-  .rf-profile{grid-template-columns:1fr 1fr}
+  .rf-grid.rf-profile{grid-template-columns:1fr 1fr}
   .nav-links{
     position:absolute;top:74px;left:0;right:0;flex-direction:column;gap:0;
     background:#0c0c0f;border-bottom:1px solid var(--line);padding:8px 0;display:none;
